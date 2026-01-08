@@ -8,6 +8,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="format-detection" content="telephone=no">
     <meta name="apple-mobile-web-app-title" content="敦好敦滿">
+    <meta name="theme-color" content="#0F172A">
+    <link rel="manifest" href="manifest.json">
+    
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="icon" type="image/png" href="icon.png">
     <title>敦好敦滿 2026</title>
@@ -98,10 +101,20 @@
             position: relative;
         }
         
-        /* 列表樣式增強 */
         .info-card h4 { color: #8B0000; font-weight: bold; margin-top: 0.5rem; margin-bottom: 0.25rem; font-size: 0.9rem; }
         .info-card ul { list-style-type: disc; padding-left: 1.2rem; margin-bottom: 0.5rem; font-size: 0.85rem; color: #334155; }
         .info-card li { margin-bottom: 0.25rem; }
+
+        .icon-img { width: 100%; height: 100%; object-fit: contain; }
+
+        /* Weather Scroll */
+        .weather-scroll {
+            display: flex;
+            overflow-x: auto;
+            gap: 1rem;
+            padding-bottom: 0.5rem;
+        }
+        .weather-scroll::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="flex flex-col h-[100dvh]">
@@ -122,21 +135,18 @@
             </div>
             
             <div class="overflow-y-auto hide-scroll flex-1 pb-10" id="modal-body">
-                <div class="h-40 w-full bg-gradient-to-br from-royal-navy to-blue-900 relative flex items-center px-8">
-                    <div class="absolute right-6 top-6 text-white/10 text-8xl">
-                        <i id="modal-icon-bg" class="fa-solid fa-landmark"></i>
-                    </div>
-                    <div class="relative z-10 text-white">
+                <div id="modal-header-bg" class="h-40 w-full bg-royal-navy relative flex items-center px-8 bg-cover bg-center transition-all duration-300">
+                    <div class="absolute inset-0 bg-gradient-to-r from-royal-navy/90 to-royal-navy/40 z-0"></div>
+                    <div class="absolute right-6 top-6 z-0" id="modal-icon-container"></div>
+                    <div class="relative z-10 text-white w-full">
                         <span id="modal-tag" class="text-[10px] font-bold tracking-widest uppercase bg-antique-gold text-royal-navy px-2 py-1 rounded mb-2 inline-block">Category</span>
-                        <h2 id="modal-title" class="text-3xl font-serif font-bold leading-tight">Title</h2>
+                        <h2 id="modal-title" class="text-3xl font-serif font-bold leading-tight drop-shadow-md">Title</h2>
                         <p id="modal-en" class="text-sm text-antique-gold italic mt-1 font-serif">English Name</p>
                     </div>
                 </div>
 
                 <div class="px-6 py-8 space-y-8 bg-parchment">
-                    <div class="rich-text text-base text-royal-navy font-serif leading-relaxed first-letter:text-3xl first-letter:font-bold first-letter:text-antique-gold first-letter:mr-1" id="modal-intro">
-                        Intro...
-                    </div>
+                    <div class="rich-text text-base text-royal-navy font-serif leading-relaxed first-letter:text-3xl first-letter:font-bold first-letter:text-antique-gold first-letter:mr-1" id="modal-intro">Intro...</div>
                     <div id="modal-sections" class="space-y-6"></div>
                 </div>
             </div>
@@ -150,7 +160,7 @@
         <div class="flex justify-between items-end mt-2 relative z-10">
             <div>
                 <p class="text-antique-gold text-xs font-bold uppercase tracking-widest mb-1">Travel Itinerary</p>
-                <h1 class="font-serif text-2xl font-bold tracking-wide">英國倫敦</h1>
+                <h1 class="font-serif text-2xl font-bold tracking-wide">敦好敦滿</h1>
             </div>
             <div class="text-right">
                 <span class="block text-3xl font-cinzel text-white leading-none">Feb</span>
@@ -283,21 +293,35 @@
         <div id="info" class="tab-content px-4 py-6 space-y-4">
             
             <div class="bg-gradient-to-br from-blue-500 to-blue-700 text-white rounded-xl p-5 shadow-floating relative overflow-hidden" id="weather-widget">
-                <div class="absolute right-[-20px] top-[-20px] opacity-20"><i class="fa-solid fa-sun text-9xl"></i></div>
-                <div class="relative z-10">
-                    <div class="flex justify-between items-start mb-4">
+                <div class="absolute right-[-20px] top-[-20px] opacity-20"><i class="fa-solid fa-cloud text-9xl"></i></div>
+                
+                <div id="weather-content" class="relative z-10">
+                    <div class="flex justify-between items-start mb-2">
                         <div>
-                            <h3 class="font-serif font-bold text-lg"><i class="fa-solid fa-location-dot mr-1"></i> 倫敦</h3>
-                            <p class="text-xs opacity-80">今日天氣概況</p>
+                            <h3 class="font-serif font-bold text-lg"><i class="fa-solid fa-location-dot mr-1"></i> 倫敦 London</h3>
+                            <p class="text-xs opacity-90" id="weather-current-desc">載入中...</p>
                         </div>
                         <div class="text-right">
-                            <span class="text-4xl font-bold block">8°C</span>
-                            <span class="text-sm opacity-90">多雲時陰</span>
+                            <span class="text-4xl font-bold block" id="weather-current-temp">--°</span>
                         </div>
                     </div>
+                    
                     <div class="w-full h-px bg-white/20 mb-3"></div>
-                    <div class="flex overflow-x-auto gap-5 pb-2 hide-scroll text-center" id="hourly-forecast">
+                    
+                    <div class="mb-3">
+                        <p class="text-[10px] uppercase font-bold tracking-wider mb-2 opacity-80">24小時預報</p>
+                        <div class="weather-scroll" id="weather-forecast-list">
+                            <div class="text-center min-w-[50px] animate-pulse">
+                                <div class="text-[10px]">--:--</div>
+                                <i class="fa-solid fa-spinner fa-spin my-1"></i>
+                                <div class="text-xs font-bold">--°</div>
+                            </div>
                         </div>
+                    </div>
+                    
+                    <div class="text-[10px] opacity-60 text-right">
+                        Data by OpenWeather
+                    </div>
                 </div>
             </div>
 
@@ -336,7 +360,7 @@
                         <div>
                             <span class="block font-bold text-xs text-gray-500">地址</span>
                             <span>46-48 Grosvenor Gardens, London SW1W 0EB</span>
-                            <a href="https://maps.google.com/?q=46-48+Grosvenor+Gardens+London+SW1W+0EB" target="_blank" class="text-xs bg-gray-100 px-2 py-0.5 rounded ml-1 text-gray-600"><i class="fa-solid fa-location-arrow"></i> 導航</a>
+                            <a href="https://www.google.com/maps/search/?api=1&query=Taipei+Representative+Office+in+the+UK" target="_blank" class="text-xs bg-gray-100 px-2 py-0.5 rounded ml-1 text-gray-600"><i class="fa-solid fa-location-arrow"></i> 導航</a>
                         </div>
                     </div>
                     <div class="flex items-start">
@@ -344,13 +368,6 @@
                         <div>
                             <span class="block font-bold text-xs text-gray-500">服務時間</span>
                             <span>週一至週五 09:00 - 17:00</span>
-                        </div>
-                    </div>
-                    <div class="flex items-start">
-                        <i class="fa-solid fa-envelope w-6 text-center text-gray-400 mt-1"></i>
-                        <div>
-                            <span class="block font-bold text-xs text-gray-500">信箱</span>
-                            <a href="mailto:gbr@mofa.gov.tw" class="text-blue-700">gbr@mofa.gov.tw</a>
                         </div>
                     </div>
                 </div>
@@ -369,96 +386,212 @@
     </nav>
 
     <script>
-        // --- 1. 深度導覽資料 (Expanded & Iconized) ---
+        // PWA Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js').catch(err => console.log('SW failed'));
+            });
+        }
+
+        // --- Weather API Integration ---
+        async function fetchWeather() {
+            const API_KEY = 'a40544916856b68216a0c47e3e27a567';
+            if(!API_KEY) return;
+
+            try {
+                // Fetch 5-day/3-hour forecast
+                const response = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=London,uk&units=metric&lang=zh_tw&appid=${API_KEY}`);
+                const data = await response.json();
+
+                if (data.cod !== "200") throw new Error('API Error');
+
+                // 1. Current Weather (Approximate from first list item)
+                const current = data.list[0];
+                document.getElementById('weather-current-temp').innerHTML = `${Math.round(current.main.temp)}<span class="text-xl align-top">°C</span>`;
+                document.getElementById('weather-current-desc').innerText = current.weather[0].description;
+
+                // 2. 24-Hour Forecast (Next 8 items x 3 hours = 24h)
+                const forecastList = document.getElementById('weather-forecast-list');
+                forecastList.innerHTML = '';
+                
+                // Take first 9 items to cover 24h+
+                const next24h = data.list.slice(0, 9);
+                
+                next24h.forEach(item => {
+                    const date = new Date(item.dt * 1000);
+                    const hours = date.getHours().toString().padStart(2, '0');
+                    const iconCode = item.weather[0].icon;
+                    const temp = Math.round(item.main.temp);
+                    
+                    const el = document.createElement('div');
+                    el.className = 'text-center min-w-[50px] flex flex-col items-center';
+                    el.innerHTML = `
+                        <div class="text-[10px] opacity-80 mb-1">${hours}:00</div>
+                        <img src="https://openweathermap.org/img/wn/${iconCode}.png" class="w-8 h-8 -my-1" alt="icon">
+                        <div class="text-xs font-bold mt-1">${temp}°</div>
+                    `;
+                    forecastList.appendChild(el);
+                });
+
+            } catch (error) {
+                console.error('Weather Fetch Error:', error);
+                document.getElementById('weather-current-desc').innerText = '暫無法取得天氣';
+            }
+        }
+
+        // --- Guide Data (內容保持不變) ---
         const guideData = [
-            {
-                id: 'tower_london', icon: 'towericon.png', title: '倫敦塔', en: 'Tower of London', tag: '世界遺產',img: 'tower.jpg',
-                intro: '這座矗立在泰晤士河畔近千年的堡壘，見證了英國最黑暗與榮耀的歷史。它曾是皇宮、軍火庫、鑄幣廠，也是令人聞風喪膽的國家監獄與刑場。',
-                details: [
-                    { title: '白塔 (White Tower)', content: '由征服者威廉於 1078 年下令建造，是諾曼軍事建築的典範。現在內部展示著歷代國王的豪華盔甲，包括亨利八世那套著名的巨大盔甲。' },
-                    { title: '皇冠珠寶 (Crown Jewels)', content: '絕對必看！位於滑鐵盧兵營內，展示著仍在使用的帝國皇冠（鑲有 2868 顆鑽石）。注意尋找權杖上的「非洲之星 I」（530克拉）以及太后皇冠上的「光之山」鑽石。' },
-                    { title: '渡鴉傳說', content: '傳說如果塔裡的六隻渡鴉飛走，王國就會崩塌。因此這裡有專門的「渡鴉官」照料牠們，且牠們的單側翅膀羽毛稍作修剪以防飛離。' },
-                    { title: '血腥歷史', content: '這裡曾處決過三位英格蘭王后，包括安妮·博林。綠塔 (Tower Green) 遺址設有紀念碑，是曾經的高貴囚犯被斬首之地。' }
+            { id: 'tower_london', icon: 'fa-solid fa-chess-rook', title: '倫敦塔', en: 'Tower of London', tag: '世界遺產', img: 'tower.jpg', intro: '這座矗立在泰晤士河畔近千年的堡壘，見證了英國最黑暗與榮耀的歷史。它曾是皇宮、軍火庫、鑄幣廠，也是令人聞風喪膽的國家監獄與刑場。', details: [{ title: '白塔 (White Tower)', content: '由征服者威廉於 1078 年下令建造，是諾曼軍事建築的典範。現在內部展示著歷代國王的豪華盔甲，包括亨利八世那套著名的巨大盔甲。' }, { title: '皇冠珠寶 (Crown Jewels)', content: '絕對必看！位於滑鐵盧兵營內，展示著仍在使用的帝國皇冠（鑲有 2868 顆鑽石）。注意尋找權杖上的「非洲之星 I」（530克拉）以及太后皇冠上的「光之山」鑽石。' }, { title: '渡鴉傳說', content: '傳說如果塔裡的六隻渡鴉飛走，王國就會崩塌。因此這裡有專門的「渡鴉官」照料牠們，且牠們的單側翅膀羽毛稍作修剪以防飛離。' }, { title: '血腥歷史', content: '這裡曾處決過三位英格蘭王后，包括安妮·博林。綠塔 (Tower Green) 遺址設有紀念碑，是曾經的高貴囚犯被斬首之地。' }] },
+            { id: 'borough_market', icon: 'fa-solid fa-utensils', title: '波羅市場', en: 'Borough Market', tag: '美食聖地', img: 'market.jpg', intro: '倫敦最古老的食品市場，位於鐵路高架橋下的獨特工業風格。這裡是全球老饕的必訪之地，匯集了英國最棒的農產品與街頭小吃。', details: [{ title: '必吃推薦', content: '<ul><li><strong>Richard Haward\'s Oysters</strong>：新鮮便宜的生蠔，搭配紅酒醋與塔巴斯科辣椒醬。</li><li><strong>Monmouth Coffee</strong>：倫敦傳奇咖啡，手沖與拿鐵都極具水準。</li><li><strong>Bread Ahead</strong>：著名的爆漿甜甜圈，香草與焦糖口味最受歡迎。</li><li><strong>西班牙燉飯</strong>：現煮的大鍋海鮮燉飯，香氣四溢。</li></ul>' }, { title: '哈利波特取景', content: '市場旁的鐵路橋下是《哈利波特：阿茲卡班的逃犯》中，騎士公車停靠「破釜酒吧」的入口拍攝地。' }] },
+            { id: 'westminster', icon: 'fa-solid fa-crown', title: '西敏寺', en: 'Westminster Abbey', tag: '皇室教堂', img: 'westminster.jpg', intro: '英國皇室的御用教堂，宏偉的哥德式建築傑作。自 1066 年以來，幾乎所有英國君主的加冕典禮都在此舉行。', details: [{ title: '重要典禮', content: '威廉王子與凱特王妃的婚禮、伊莉莎白二世女王的國葬皆在此舉行。' }, { title: '詩人角 (Poets\' Corner)', content: '位於南耳堂，埋葬或紀念了許多偉大的文學家，包括喬叟、狄更斯、哈代，以及莎士比亞的紀念碑。' }, { title: '加冕椅', content: '那張古老且看似破舊的木椅，是自 1308 年以來每位君主加冕時必須坐的椅子，極具歷史價值。' }] },
+            { id: 'dungeon', icon: 'fa-solid fa-skull', title: '倫敦地牢', en: 'The London Dungeon', tag: '驚悚體驗', img: 'dungeon.jpg', intro: '結合歷史、恐怖與黑色幽默的沈浸式劇場。透過真人演員與特效，重現倫敦歷史上最黑暗的時期。', details: [{ title: '1. 地牢入口', content: '遊客進入地牢的第一刻，就會看到穿著中世服裝的小丑迎接。' }, { title: '2. 陰謀者小徑', content: '走進狹窄的石板巷道，黑袍角色低聲討論著「火藥陰謀」。' }, { title: '3. 火藥陰謀揭露', content: '蓋伊·福克斯陰謀被揭發，四周堆滿火藥桶。' }, { title: '4. 酷刑室', content: '展示中世倫敦常用的審訊與刑具。' }, { title: '5. 瘟疫屋', content: '走進霧氣瀰漫的屋子，模擬 1665 年黑死病肆虐。' }, { title: '6. 鼠巷', content: '沿著狹窄的巷道前進，周圍布滿垃圾、老鼠聲和陰影。' }, { title: '7. 白教堂迷宮', content: '重現開膛手傑克謀殺案的街道迷宮。' }, { title: '8. 十鈴酒吧', content: '在酒吧場景中，聽酒吧老闆講述傑克犯罪故事。' }, { title: '9. 古代法庭', content: '進入模擬法庭，演員重現審判過程。' }, { title: '10. 逃出紐蓋特監獄', content: '模擬囚犯逃脫過程，通過鐵籠、暗門和鐵鏈。' }, { title: '11. 洛維特夫人派店', content: '黑色幽默的派店場景，講述「肉派的秘密」。' }, { title: '12. 理髮師陶德', content: '重現割喉理髮店，燈光陰暗、聲效逼真。' }, { title: '13. 驚悚落下體驗', content: '刺激的落下設施，在黑暗中快速下降。' }, { title: '14. 暴君之河', content: '水上旅程模擬亨利八世暴政，乘船穿過暗河。' }, { title: '15. 維多利亞酒館', content: '旅程收尾的酒館，復古道具展示維多利亞時期夜生活。' }] },
+            { id: 'british_museum', icon: 'fa-solid fa-building-columns', title: '大英博物館', en: 'British Museum', tag: '世界級博物館', img: 'british_museum.jpg', intro: '成立於 1753 年，收藏了跨越人類 200 萬年歷史的珍貴文物。雖然展品來源具爭議性，但其學術價值無可比擬。', details: [{ title: '羅塞塔石碑', content: '解開古埃及文字之謎的鑰匙，館內人氣最高的鎮館之寶。' }, { title: '帕德嫩神廟石雕', content: '來自希臘雅典衛城的宏偉大理石雕塑，展現了古希臘藝術的巔峰。' }, { title: '埃及館', content: '擁有除開羅以外最豐富的木乃伊收藏，以及巨大的拉美西斯二世頭像。' }] },
+            { id: 'lion_king', icon: 'fa-solid fa-masks-theater', title: '獅子王音樂劇', en: 'The Lion King', tag: '迪士尼經典動畫改編', img: 'lion_king.jpg', intro: '發生在非洲大草原「榮耀大地」。辛巴在父親木法沙死後逃離，最終在娜拉與拉飛奇指引下，重返故鄉擊敗刀疤，恢復王位。', details: [{ title: '第一幕: Circle of Life', content: '各種動物齊聚榮耀大地，迎接辛巴誕生。' }, { title: '第一幕: I Just Can’t Wait to Be King', content: '年幼辛巴幻想成為國王，展現天真與自信。' }, { title: '第一幕: Hakuna Matata', content: '辛巴遇見丁滿與彭彭，學會無憂無慮的生活。' }, { title: '第二幕: Can You Feel the Love Tonight', content: '辛巴與娜拉重逢相愛，辛巴內心開始動搖。' }, { title: '終曲: Circle of Life', content: '辛巴登基，榮耀大地恢復生機，生命循環再次展開。' }] },
+            { id: 'nhm', icon: 'fa-solid fa-bone', title: '自然史博物館', en: 'Natural History Museum', tag: '科學殿堂', img: 'nhm.jpg', intro: '被譽為「自然的大教堂」，維多利亞式的建築本身就是藝術品，外牆裝飾著精緻的動物浮雕。', details: [{ title: 'Hope 藍鯨', content: '懸掛在欣采大廳 (Hintze Hall) 空中的巨大藍鯨骨架，取代了以前的恐龍 Dippy，象徵對海洋的守護。' }, { title: '地球廳', content: '入口處有個穿越巨大金屬球體的紅色手扶梯，充滿科幻感，通往展示火山與地震的區域。' }] },
+            { id: 'va', icon: 'fa-solid fa-palette', title: 'V&A 博物館', en: 'Victoria and Albert Museum', tag: '藝術與設計', img: 'va.jpg', intro: '全球最大的裝飾藝術與設計博物館，收藏了從古至今的時尚、珠寶、家具與雕塑。', details: [{ title: '必訪咖啡廳', content: '博物館內的 Gamble Room 是世界上最早的博物館餐廳，擁有華麗的彩繪玻璃與陶瓷裝飾，極致奢華。' }, { title: '珠寶長廊', content: '展示了超過 3000 件珠寶，包括拿破崙送給約瑟芬皇后的鑽石王冠。' }] },
+            { id: 'national_gallery', icon: 'fa-solid fa-image', title: '國家美術館', en: 'The National Gallery', tag: '繪畫殿堂', img: 'national_gallery.jpg', intro: '收藏了 13 世紀至 1900 年間的西歐繪畫，包括達文西、梵谷、莫內等大師真跡。', details: [{ title: '必看名畫', content: '<ul><li>梵谷《向日葵》</li><li>達文西《岩間聖母》</li><li>范艾克《阿爾諾芬尼夫婦像》</li><li>泰納《戰艦提梅梅爾號》</li></ul>' }] },
+            { id: 'les_mis', icon: 'fa-solid fa-flag', title: '悲慘世界', en: 'Les Misérables', tag: '史詩音樂劇', img: 'les_mis.jpg', intro: '改編自雨果小說，圍繞「法律、良心、救贖與革命」。尚萬強出獄後改過自新，卻始終被警官賈維追捕，最終在愛與寬恕中獲得救贖。', details: [{ title: '第一幕: Look Down', content: '苦役場景，建立社會不公與尚萬強、賈維的對立。' }, { title: '第一幕: I Dreamed a Dream', content: '芳婷回憶破碎夢想，訴說被現實擊垮的痛苦。' }, { title: '第一幕: Do You Hear the People Sing?', content: '學生號召起義，象徵社會覺醒與抗爭。' }, { title: '第二幕: On My Own', content: '艾潘妮獨唱單戀之苦，呈現孤獨真誠的愛。' }, { title: '第二幕: One Day More', content: '革命前夕，命運交織的高潮時刻。' }, { title: '終曲: Finale', content: '尚萬強安息，全體合唱愛與寬恕，象徵救贖。' }] },
+            { id: 'st_pauls', icon: 'fa-solid fa-church', title: '聖保羅大教堂', en: 'St Paul\'s Cathedral', tag: '巴洛克地標', img: 'st_pauls.jpg', intro: '雷恩爵士設計的巴洛克傑作，其巨大的圓頂主宰了倫敦天際線三百年。', details: [{ title: '登頂體驗', content: '挑戰 528 階樓梯到達金迴廊 (Golden Gallery)，可俯瞰倫敦絕美全景。中途的耳語廊 (Whispering Gallery) 擁有神奇的傳聲效果。' }] }
+        ];
+
+        // --- Itinerary Data (Updated with Transport & Corrections) ---
+        const itineraryData = [
+            { 
+                date: "2/14", day: "週六", fullDate: "2026-02-14",
+                events: [
+                    {time:"06:00", title:"桃園機場 T1", type:"flight", note:"準備起飛"},
+                    {time:"16:55", title:"Heathrow T3", type:"flight", note:"抵達英國", 
+                     transport: {mode: "伊莉莎白線", text: "Heathrow T2/3 → Bond St", detail: "約 35 分鐘，直達，刷信用卡進站"}},
+                    {time:"", title:"M&S Food Bond St", type:"shop", note:"超市採買", 
+                     transport: {mode: "步行", text: "前往 395 Oxford St", detail: "約 250 公尺，3 分鐘"}},
+                    {time:"", title:"395 Oxford St", type:"stay", note:"住宿點", 
+                     transport: {mode: "步行", text: "前往 Burger & Lobster", detail: "約 150 公尺，2 分鐘"}},
+                    {time:"21:00", title:"Burger & Lobster", type:"food", note:"Bond St 分店 (已預訂)"}
                 ]
             },
-            {
-                id: 'borough_market', icon: 'fa-utensils', title: '波羅市場', en: 'Borough Market', tag: '美食聖地',
-                intro: '倫敦最古老的食品市場，位於鐵路高架橋下的獨特工業風格。這裡是全球老饕的必訪之地，匯集了英國最棒的農產品與街頭小吃。',
-                details: [
-                    { title: '必吃推薦', content: '<ul><li><strong>Richard Haward\'s Oysters</strong>：新鮮便宜的生蠔，搭配紅酒醋與塔巴斯科辣椒醬。</li><li><strong>Monmouth Coffee</strong>：倫敦傳奇咖啡，手沖與拿鐵都極具水準。</li><li><strong>Bread Ahead</strong>：著名的爆漿甜甜圈，香草與焦糖口味最受歡迎。</li><li><strong>西班牙燉飯</strong>：現煮的大鍋海鮮燉飯，香氣四溢。</li></ul>' },
-                    { title: '哈利波特取景', content: '市場旁的鐵路橋下是《哈利波特：阿茲卡班的逃犯》中，騎士公車停靠「破釜酒吧」的入口拍攝地。' }
+            { 
+                date: "2/15", day: "週日", fullDate: "2026-02-15",
+                events: [
+                    {time:"08:30", title:"倫敦塔", type:"sight", note:"KLOOK預訂", mapQuery: "Tower of London",
+                     transport: {mode: "地鐵", text: "Bond St → Tower Hill", detail: "Jubilee線至Westminster轉Circle/District線，約 30 分鐘"}},
+                    {time:"11:30", title:"波羅市場", type:"food", note:"美食市集", mapQuery: "Borough Market",
+                     transport: {mode: "步行", text: "跨越倫敦塔橋", detail: "約 1.2 公里，20 分鐘 (風景優美)"}},
+                    {time:"14:30", title:"Skuna Boats", type:"fun", note:"烤肉船", mapQuery: "Skuna Boats Canary Wharf",
+                     transport: {mode: "地鐵", text: "London Bridge → Canary Wharf", detail: "Jubilee線，約 10 分鐘，出站步行 8 分鐘"}},
+                    {time:"18:30", title:"Blacklock", type:"food", note:"Canary Wharf 分店", mapQuery: "Blacklock Canary Wharf"}
                 ]
             },
-            {
-                id: 'westminster', icon: 'fa-crown', title: '西敏寺', en: 'Westminster Abbey', tag: '皇室教堂',
-                intro: '英國皇室的御用教堂，宏偉的哥德式建築傑作。自 1066 年以來，幾乎所有英國君主的加冕典禮都在此舉行。',
-                details: [
-                    { title: '重要典禮', content: '威廉王子與凱特王妃的婚禮、伊莉莎白二世女王的國葬皆在此舉行。' },
-                    { title: '詩人角 (Poets\' Corner)', content: '位於南耳堂，埋葬或紀念了許多偉大的文學家，包括喬叟、狄更斯、哈代，以及莎士比亞的紀念碑。' },
-                    { title: '加冕椅', content: '那張古老且看似破舊的木椅，是自 1308 年以來每位君主加冕時必須坐的椅子，極具歷史價值。' }
+            { 
+                date: "2/16", day: "週一", fullDate: "2026-02-16",
+                events: [
+                    {time:"09:00", title:"西敏寺", type:"sight", note:"已預訂", mapQuery: "Westminster Abbey",
+                     transport: {mode: "地鐵", text: "Bond St → Westminster", detail: "Jubilee線直達，約 6 分鐘"}},
+                    {time:"12:30", title:"Pizza Pilgrims", type:"food", note:"Waterloo 分店", mapQuery: "Pizza Pilgrims Waterloo",
+                     transport: {mode: "步行", text: "跨越西敏橋", detail: "約 1.1 公里，15 分鐘 (經大笨鐘/倫敦眼)"}},
+                    {time:"14:00", title:"倫敦地牢", type:"fun", note:"體驗", mapQuery: "The London Dungeon",
+                     transport: {mode: "步行", text: "就在旁邊", detail: "約 200 公尺，3 分鐘"}},
+                    {time:"晚餐", title:"Hoppers", type:"food", note:"Marylebone", mapQuery: "Hoppers Marylebone",
+                     transport: {mode: "地鐵", text: "Waterloo → Baker St", detail: "Bakerloo線，約 14 分鐘，出站步行 8 分鐘"}}
                 ]
             },
-            {
-                id: 'dungeon', icon: 'fa-skull', title: '倫敦地牢', en: 'The London Dungeon', tag: '驚悚體驗',
-                intro: '結合歷史、恐怖與黑色幽默的沈浸式劇場。透過真人演員與特效，重現倫敦歷史上最黑暗的時期。',
-                details: [
-                    { title: '體驗亮點', content: '你將步行穿越不同的場景，包括迷霧街道上的開膛手傑克、理髮師陶德的理髮店（椅子會動！）、以及火藥陰謀的審訊室。' },
-                    { title: '遊樂設施', content: '包含兩個小型遊樂設施：一個通往叛徒門的黑暗乘船之旅，以及最後模擬絞刑的墜落塔 (Drop Ride)。' }
+            { 
+                date: "2/17", day: "週二", fullDate: "2026-02-17",
+                events: [
+                    {time:"08:30", title:"Eggslut Fitzrovia", type:"food", note:"早餐", mapQuery: "Eggslut Fitzrovia",
+                     transport: {mode: "步行", text: "從住宿出發", detail: "約 1.1 公里，14 分鐘"}},
+                    {time:"09:10", title:"大英博物館", type:"sight", note:"中文導覽", mapQuery: "The British Museum",
+                     transport: {mode: "步行", text: "前往博物館", detail: "約 600 公尺，8 分鐘"}},
+                    {time:"13:00", title:"The Ninth", type:"food", note:"米其林一星", mapQuery: "The Ninth London",
+                     transport: {mode: "步行", text: "前往餐廳", detail: "約 900 公尺，12 分鐘"}},
+                    {time:"", title:"柯芬園市集", type:"walk", note:"逛街", mapQuery: "Covent Garden Market",
+                     transport: {mode: "步行", text: "前往柯芬園", detail: "約 10 分鐘"}},
+                    {time:"晚餐", title:"Barrafina", type:"food", note:"Adelaide St", mapQuery: "Barrafina Adelaide Street",
+                     transport: {mode: "步行", text: "前往餐廳", detail: "約 5 分鐘"}},
+                    {time:"19:30", title:"獅子王音樂劇", type:"show", note:"Lyceum Theatre", mapQuery: "Lyceum Theatre London",
+                     transport: {mode: "步行", text: "前往劇院", detail: "約 400 公尺，5 分鐘"}}
                 ]
             },
-            {
-                id: 'british_museum', icon: 'fa-building-columns', title: '大英博物館', en: 'British Museum', tag: '世界級博物館',
-                intro: '成立於 1753 年，收藏了跨越人類 200 萬年歷史的珍貴文物。雖然展品來源具爭議性，但其學術價值無可比擬。',
-                details: [
-                    { title: '羅塞塔石碑', content: '解開古埃及文字之謎的鑰匙，館內人氣最高的鎮館之寶。' },
-                    { title: '帕德嫩神廟石雕', content: '來自希臘雅典衛城的宏偉大理石雕塑，展現了古希臘藝術的巔峰。' },
-                    { title: '埃及館', content: '擁有除開羅以外最豐富的木乃伊收藏，以及巨大的拉美西斯二世頭像。' }
+            { 
+                date: "2/18", day: "週三", fullDate: "2026-02-18",
+                events: [
+                    {time:"08:30", title:"Philippe Conticini", type:"food", note:"巨型可頌", mapQuery: "Philippe Conticini South Kensington",
+                     transport: {mode: "地鐵", text: "Bond St → South Kensington", detail: "Jubilee至Green Park轉Piccadilly線，約 20 分鐘"}},
+                    {time:"09:50", title:"自然史博物館", type:"sight", note:"已預訂", mapQuery: "Natural History Museum",
+                     transport: {mode: "步行", text: "前往博物館", detail: "約 300 公尺，4 分鐘"}},
+                    {time:"", title:"V&A 博物館", type:"walk", note:"逛展", mapQuery: "Victoria and Albert Museum",
+                     transport: {mode: "步行", text: "就在隔壁", detail: "約 100 公尺，1 分鐘"}},
+                    {time:"17:00", title:"Dishoom", type:"food", note:"Kensington", mapQuery: "Dishoom Kensington",
+                     transport: {mode: "步行", text: "前往餐廳", detail: "約 1.2 公里，15 分鐘 (或搭公車 9/23 號)"}}
                 ]
             },
-            {
-                id: 'lion_king', icon: 'fa-masks-theater', title: '獅子王音樂劇', en: 'The Lion King', tag: '經典音樂劇',
-                intro: '迪士尼經典動畫改編，以其令人驚嘆的舞台效果、面具設計與木偶藝術聞名於世。',
-                details: [
-                    { title: '視覺饗宴', content: '導演 Julie Taymor 利用人體彩繪、機械木偶與面具，將演員轉化為大草原上的動物。長頸鹿、獵豹的動作栩栩如生。' },
-                    { title: '開場震撼', content: '《Circle of Life》響起時，大型動物會從觀眾席走道走上舞台，那是整場劇最感動人心的時刻。' }
+            { 
+                date: "2/19", day: "週四", fullDate: "2026-02-19",
+                events: [
+                    {time:"08:30", title:"Arôme Bakery", type:"food", note:"蜂蜜吐司 (Duke St)", mapQuery: "Arôme Bakery - The Duke Street Bakery",
+                     transport: {mode: "步行", text: "從住宿出發", detail: "約 350 公尺，5 分鐘"}},
+                    {time:"09:30", title:"國家美術館", type:"sight", note:"已預訂", mapQuery: "The National Gallery",
+                     transport: {mode: "公車/步行", text: "前往特拉法加廣場", detail: "139/159號公車約15分，步行約20分"}},
+                    {time:"12:00", title:"ALTA Kingly Court", type:"food", note:"午餐", mapQuery: "ALTA Kingly Court",
+                     transport: {mode: "步行", text: "穿越 Soho 區", detail: "約 800 公尺，12 分鐘"}},
+                    {time:"", title:"Liberty London", type:"shop", note:"百貨", mapQuery: "Liberty London",
+                     transport: {mode: "步行", text: "就在旁邊", detail: "約 100 公尺，2 分鐘"}},
+                    {time:"15:00", title:"啤酒自行車", type:"fun", note:"Wee Toast Tours", mapQuery: "Wee Toast Tours London",
+                     transport: {mode: "步行", text: "前往集合點", detail: "視集合點而定，通常在附近"}},
+                    {time:"17:00", title:"Bancone", type:"food", note:"Golden Sq", mapQuery: "Bancone Golden Square",
+                     transport: {mode: "步行", text: "前往餐廳", detail: "約 400 公尺，5 分鐘"}},
+                    {time:"19:30", title:"悲慘世界", type:"show", note:"Sondheim Theatre", mapQuery: "Sondheim Theatre",
+                     transport: {mode: "步行", text: "前往劇院", detail: "約 300 公尺，4 分鐘"}}
                 ]
             },
-            {
-                id: 'nhm', icon: 'fa-dinosaur', title: '自然史博物館', en: 'Natural History Museum', tag: '科學殿堂',
-                intro: '被譽為「自然的大教堂」，維多利亞式的建築本身就是藝術品，外牆裝飾著精緻的動物浮雕。',
-                details: [
-                    { title: 'Hope 藍鯨', content: '懸掛在欣采大廳 (Hintze Hall) 空中的巨大藍鯨骨架，取代了以前的恐龍 Dippy，象徵對海洋的守護。' },
-                    { title: '地球廳', content: '入口處有個穿越巨大金屬球體的紅色手扶梯，充滿科幻感，通往展示火山與地震的區域。' }
+            { 
+                date: "2/20", day: "週五", fullDate: "2026-02-20",
+                events: [
+                    {time:"08:00", title:"聖保羅大教堂", type:"sight", note:"已預訂", mapQuery: "St. Paul's Cathedral",
+                     transport: {mode: "地鐵", text: "Bond St → St Paul's", detail: "Central 線直達，約 10 分鐘"}},
+                    {time:"12:00", title:"Tortilla Leadenhall", type:"food", note:"午餐", mapQuery: "Tortilla Leadenhall Market",
+                     transport: {mode: "步行", text: "前往利德賀市場", detail: "約 900 公尺，12 分鐘"}},
+                    {time:"13:00", title:"War of the Worlds", type:"fun", note:"體驗", mapQuery: "Jeff Wayne's The War of The Worlds: The Immersive Experience",
+                     transport: {mode: "步行", text: "前往體驗館", detail: "約 250 公尺，3 分鐘"}},
+                    {time:"16:00", title:"Engel Bar", type:"food", note:"下午茶", mapQuery: "Engel Bar London",
+                     transport: {mode: "步行", text: "前往酒吧", detail: "約 200 公尺，3 分鐘"}},
+                    {time:"19:30", title:"Sky Garden", type:"sight", note:"夜景", mapQuery: "Sky Garden London",
+                     transport: {mode: "步行", text: "前往空中花園", detail: "約 400 公尺，5 分鐘"}}
                 ]
             },
-            {
-                id: 'va', icon: 'fa-palette', title: 'V&A 博物館', en: 'Victoria and Albert Museum', tag: '藝術與設計',
-                intro: '全球最大的裝飾藝術與設計博物館，收藏了從古至今的時尚、珠寶、家具與雕塑。',
-                details: [
-                    { title: '必訪咖啡廳', content: '博物館內的 Gamble Room 是世界上最早的博物館餐廳，擁有華麗的彩繪玻璃與陶瓷裝飾，極致奢華。' },
-                    { title: '珠寶長廊', content: '展示了超過 3000 件珠寶，包括拿破崙送給約瑟芬皇后的鑽石王冠。' }
+            { 
+                date: "2/21", day: "週六", fullDate: "2026-02-21",
+                events: [
+                    {time:"07:00", title:"伊莉莎白線車站", type:"walk", note:"前往Watford", mapQuery: "Bond Street Station",
+                     transport: {mode: "地鐵+火車", text: "Bond St → Euston → Watford Jnc", detail: "Victoria線至Euston(5分)，轉火車至Watford(20分)"}},
+                    {time:"13:00", title:"哈利波特影城", type:"fun", note:"Warner Bros.", mapQuery: "Warner Bros. Studio Tour London",
+                     transport: {mode: "火車", text: "Watford Jnc → Euston", detail: "搭接駁車回車站再轉火車，約 40 分鐘"}},
+                    {time:"22:00", title:"Evans & Peel", type:"fun", note:"偵探酒吧", mapQuery: "Evans & Peel Detective Agency",
+                     transport: {mode: "地鐵", text: "Euston → Earl's Court", detail: "Victoria至Green Park轉Piccadilly，約 30 分鐘"}}
                 ]
             },
-            {
-                id: 'national_gallery', icon: 'fa-image', title: '國家美術館', en: 'The National Gallery', tag: '繪畫殿堂',
-                intro: '收藏了 13 世紀至 1900 年間的西歐繪畫，包括達文西、梵谷、莫內等大師真跡。',
-                details: [
-                    { title: '必看名畫', content: '<ul><li>梵谷《向日葵》</li><li>達文西《岩間聖母》</li><li>范艾克《阿爾諾芬尼夫婦像》</li><li>泰納《戰艦提梅梅爾號》</li></ul>' }
+            { 
+                date: "2/22", day: "週日", fullDate: "2026-02-22",
+                events: [
+                    {time:"", title:"E Pellicci", type:"food", note:"英式早餐", mapQuery: "E Pellicci",
+                     transport: {mode: "地鐵", text: "Bond St → Bethnal Green", detail: "Central 線直達，約 25 分鐘"}},
+                    {time:"", title:"The Hidden City", type:"fun", note:"解謎", mapQuery: "The Hidden City London",
+                     transport: {mode: "步行", text: "解謎步行活動", detail: "區域內移動"}},
+                    {time:"14:30", title:"The Murder Express", type:"fun", note:"午餐劇", mapQuery: "Funicular The Murder Express",
+                     transport: {mode: "步行", text: "前往 Brick Lane", detail: "約 15 分鐘"}},
+                    {time:"PM", title:"紅磚巷市集", type:"walk", note:"Brick Lane", mapQuery: "Brick Lane Market",
+                     transport: {mode: "步行", text: "市集閒逛", detail: "隨意走動"}}
                 ]
             },
-            {
-                id: 'les_mis', icon: 'fa-flag', title: '悲慘世界', en: 'Les Misérables', tag: '史詩音樂劇',
-                intro: '倫敦西區上演時間最長的音樂劇，講述愛、救贖與革命的史詩故事。',
-                details: [
-                    { title: '旋轉舞台', content: '經典的旋轉舞台設計讓時空切換流暢，尤其在築起街壘的場景極具震撼力。' },
-                    { title: '經典名曲', content: '《Do You Hear the People Sing?》、《I Dreamed a Dream》、《One Day More》皆是膾炙人口的名曲。' }
-                ]
-            },
-            {
-                id: 'st_pauls', icon: 'fa-church', title: '聖保羅大教堂', en: 'St Paul\'s Cathedral', tag: '巴洛克地標',
-                intro: '雷恩爵士設計的巴洛克傑作，其巨大的圓頂主宰了倫敦天際線三百年。',
-                details: [
-                    { title: '登頂體驗', content: '挑戰 528 階樓梯到達金迴廊 (Golden Gallery)，可俯瞰倫敦絕美全景。中途的耳語廊 (Whispering Gallery) 擁有神奇的傳聲效果。' }
+            { 
+                date: "2/23", day: "週一", fullDate: "2026-02-23",
+                events: [
+                    {time:"09:00", title:"Bounce 行李寄放", type:"stay", note:"Victoria", mapQuery: "Victoria Station",
+                     transport: {mode: "地鐵", text: "Bond St → Victoria", detail: "Jubilee至Green Park轉Victoria線，約 15 分鐘"}},
+                    {time:"10:30", title:"白金漢宮", type:"sight", note:"衛兵交接", mapQuery: "Buckingham Palace",
+                     transport: {mode: "步行", text: "從車站步行", detail: "約 800 公尺，10 分鐘"}},
+                    {time:"17:00", title:"Heathrow T3", type:"flight", note:"返台", mapQuery: "Heathrow Airport Terminal 3",
+                     transport: {mode: "地鐵/快線", text: "Victoria → Paddington → LHR", detail: "District至Paddington轉Elizabeth線，預留 70 分鐘"}},
+                    {time:"18:35", title:"TPE T1", type:"flight", note:"抵達", mapQuery: "Taoyuan International Airport Terminal 1"}
                 ]
             }
         ];
@@ -466,12 +599,11 @@
         function renderGuide() {
             const container = document.getElementById('guide-list');
             let html = '';
-            guideData.forEach(item => {
+            guideData.forEach((item, index) => {
+                const numberIcon = `<div class="w-12 h-12 rounded-full bg-royal-navy/10 flex items-center justify-center mr-4 shrink-0 font-cinzel font-bold text-xl text-royal-navy">${index + 1}</div>`;
                 html += `
                     <div class="bg-white rounded-xl shadow-paper p-4 flex items-center cursor-pointer btn-press border-l-4 border-royal-navy" onclick="openModal('${item.id}')">
-                        <div class="w-12 h-12 rounded-full bg-royal-navy/5 flex items-center justify-center mr-4 shrink-0">
-                            <i class="${item.icon} text-2xl text-royal-navy"></i>
-                        </div>
+                        ${numberIcon}
                         <div class="flex-1 min-w-0">
                             <div class="flex justify-between items-baseline mb-1">
                                 <h3 class="font-bold text-royal-navy text-lg truncate pr-2">${item.title}</h3>
@@ -480,8 +612,7 @@
                             <p class="text-xs text-gray-500 font-serif italic truncate">${item.en}</p>
                         </div>
                         <i class="fa-solid fa-chevron-right text-gray-300 ml-3"></i>
-                    </div>
-                `;
+                    </div>`;
             });
             container.innerHTML = html;
         }
@@ -494,8 +625,16 @@
             document.getElementById('modal-en').innerText = item.en;
             document.getElementById('modal-intro').innerHTML = item.intro;
             
-            // Icon handling
-            document.getElementById('modal-icon-bg').className = `${item.icon}`;
+            const iconContainer = document.getElementById('modal-icon-container');
+            iconContainer.innerHTML = `<i class="${item.icon} text-8xl text-white/10"></i>`;
+            const header = document.getElementById('modal-header-bg');
+            if(item.img) {
+                header.style.backgroundImage = `url('${item.img}')`;
+                header.classList.remove('bg-royal-navy');
+            } else {
+                header.style.backgroundImage = 'none';
+                header.classList.add('bg-royal-navy');
+            }
 
             let detailsHtml = '';
             item.details.forEach((detail, index) => {
@@ -504,11 +643,8 @@
                         <h4 class="font-bold text-lg text-royal-navy mb-3 flex items-center font-serif">
                             <span class="inline-block w-2 h-2 bg-antique-gold rounded-full mr-3"></span>${detail.title}
                         </h4>
-                        <div class="text-sm text-gray-700 pl-5 font-sans leading-relaxed">
-                            ${detail.content}
-                        </div>
-                    </div>
-                `;
+                        <div class="text-sm text-gray-700 pl-5 font-sans leading-relaxed">${detail.content}</div>
+                    </div>`;
             });
             document.getElementById('modal-sections').innerHTML = detailsHtml;
 
@@ -525,145 +661,11 @@
             document.body.style.overflow = '';
         }
 
-        // --- 2. 新版行程資料 (Timeline with Transport) ---
-        const itineraryData = [
-            { 
-                date: "2/14", day: "週六", 
-                events: [
-                    {time:"06:00", title:"桃園機場 T1", type:"flight", note:"準備起飛"},
-                    {time:"16:55", title:"Heathrow T3", type:"flight", note:"抵達英國", 
-                     transport: {mode: "Elizabeth Line", text: "Heathrow → Bond St", detail: "約 30 分鐘，班次頻繁"}},
-                    {time:"", title:"M&S Food Bond St", type:"shop", note:"超市採買", 
-                     transport: {mode: "步行", text: "步行至住宿", detail: "約 10 分鐘 (800m)"}},
-                    {time:"", title:"395 Oxford St", type:"stay", note:"住宿點 (等郭欣怡)", 
-                     transport: {mode: "步行", text: "步行至餐廳", detail: "約 5 分鐘"}},
-                    {time:"21:00", title:"Burger & Lobster", type:"food", note:"Bond St 分店 (已預訂)"}
-                ]
-            },
-            { 
-                date: "2/15", day: "週日", 
-                events: [
-                    {time:"08:30", title:"倫敦塔", type:"sight", note:"KLOOK預訂，塔橋拍照",
-                     transport: {mode: "地鐵", text: "Bond St → Tower Hill", detail: "Jubilee線轉District線，約 25 分鐘"}},
-                    {time:"11:30", title:"波羅市場", type:"food", note:"美食市集",
-                     transport: {mode: "步行", text: "經倫敦塔橋步行", detail: "風景優美，約 15-20 分鐘"}},
-                    {time:"14:30", title:"Skuna Boats", type:"fun", note:"帶泳衣/毛巾/拖鞋",
-                     transport: {mode: "DLR/地鐵", text: "London Bridge → Canary Wharf", detail: "Jubilee線，約 15 分鐘"}},
-                    {time:"18:30", title:"Blacklock", type:"food", note:"Canary Wharf (Sunday Roast)"}
-                ]
-            },
-            { 
-                date: "2/16", day: "週一", 
-                events: [
-                    {time:"09:00", title:"西敏寺", type:"sight", note:"已預訂，大笨鐘/國會大廈打卡",
-                     transport: {mode: "地鐵", text: "Bond St → Westminster", detail: "Jubilee線直達，約 6 分鐘"}},
-                    {time:"12:30", title:"Pizza Pilgrims", type:"food", note:"Waterloo (或墨西哥菜)",
-                     transport: {mode: "步行", text: "跨越西敏橋", detail: "約 15 分鐘，沿途有塗鴉隧道"}},
-                    {time:"14:00", title:"倫敦地牢", type:"fun", note:"了解故事背景",
-                     transport: {mode: "地鐵", text: "Waterloo → Baker St", detail: "Bakerloo線，約 15 分鐘"}},
-                    {time:"晚餐", title:"Hoppers / Nando's", type:"food", note:"Marylebone 附近用餐"}
-                ]
-            },
-            { 
-                date: "2/17", day: "週二", 
-                events: [
-                    {time:"08:30", title:"Eggslut Fitzrovia", type:"food", note:"網紅蛋漢堡",
-                     transport: {mode: "步行", text: "從住宿步行", detail: "約 10-15 分鐘"}},
-                    {time:"09:10", title:"大英博物館", type:"sight", note:"已預訂中文導覽",
-                     transport: {mode: "步行", text: "步行前往", detail: "約 5-8 分鐘"}},
-                    {time:"13:00", title:"The Ninth", type:"food", note:"米其林一星 (已預訂)",
-                     transport: {mode: "步行", text: "步行至柯芬園", detail: "約 15 分鐘"}},
-                    {time:"", title:"柯芬園市集", type:"walk", note:"逛街",
-                     transport: {mode: "步行", text: "在周邊活動", detail: "附近有很多商店"}},
-                    {time:"晚餐", title:"Barrafina / Shake Shack", type:"food", note:"Adelaide St"},
-                    {time:"19:30", title:"獅子王音樂劇", type:"show", note:"Lyceum Theatre (已預訂)"}
-                ]
-            },
-            { 
-                date: "2/18", day: "週三", 
-                events: [
-                    {time:"08:30", title:"Philippe Conticini", type:"food", note:"巨型可頌 (已預訂)",
-                     transport: {mode: "地鐵", text: "Bond St → South Kensington", detail: "Elizabeth線轉Piccadilly線，約 25 分鐘"}},
-                    {time:"09:50", title:"自然史博物館", type:"sight", note:"已預訂",
-                     transport: {mode: "步行", text: "就在隔壁", detail: "1 分鐘"}},
-                    {time:"", title:"V&A / 哈洛德百貨", type:"walk", note:"肯辛頓花園/荷蘭公園(選去)",
-                     transport: {mode: "步行/公車", text: "博物館區移動", detail: "皆在步行範圍內"}},
-                    {time:"17:00", title:"Dishoom", type:"food", note:"Kensington (印度料理)"}
-                ]
-            },
-            { 
-                date: "2/19", day: "週四", 
-                events: [
-                    {time:"08:30", title:"Arôme Bakery", type:"food", note:"蜂蜜吐司",
-                     transport: {mode: "步行/地鐵", text: "前往國家美術館", detail: "約 20 分鐘"}},
-                    {time:"09:30", title:"國家美術館", type:"sight", note:"已預訂",
-                     transport: {mode: "步行", text: "步行至 Kingly Court", detail: "約 10 分鐘"}},
-                    {time:"12:00", title:"ALTA Kingly Court", type:"food", note:"北西班牙料理",
-                     transport: {mode: "步行", text: "前往 Liberty", detail: "約 5 分鐘"}},
-                    {time:"", title:"Liberty London", type:"shop", note:"經典百貨買伴手禮"},
-                    {time:"15:00", title:"啤酒自行車", type:"fun", note:"需簽同意書",
-                     transport: {mode: "步行", text: "前往 Bancone", detail: "視上車點而定"}},
-                    {time:"17:00", title:"Bancone", type:"food", note:"Golden Sq (義大利麵)",
-                     transport: {mode: "步行", text: "前往劇院", detail: "約 5 分鐘"}},
-                    {time:"19:30", title:"悲慘世界", type:"show", note:"Sondheim Theatre"}
-                ]
-            },
-            { 
-                date: "2/20", day: "週五", 
-                events: [
-                    {time:"08:00", title:"聖保羅大教堂", type:"sight", note:"已預訂",
-                     transport: {mode: "地鐵", text: "Bond St → St Paul's", detail: "Central 線直達，約 10 分鐘"}},
-                    {time:"12:00", title:"Tortilla Leadenhall", type:"food", note:"墨西哥料理",
-                     transport: {mode: "步行", text: "前往體驗館", detail: "約 10 分鐘"}},
-                    {time:"13:00", title:"War of the Worlds", type:"fun", note:"火星冒險體驗",
-                     transport: {mode: "步行", text: "前往 Royal Exchange", detail: "約 5 分鐘"}},
-                    {time:"", title:"Fortnum & Mason", type:"shop", note:"Royal Exchange 分店買茶"},
-                    {time:"16:00", title:"Engel Bar", type:"food", note:"下午茶 (已預訂)",
-                     transport: {mode: "步行", text: "前往 Sky Garden", detail: "約 10 分鐘"}},
-                    {time:"19:30", title:"Sky Garden", type:"sight", note:"免費夜景 (已預訂)"}
-                ]
-            },
-            { 
-                date: "2/21", day: "週六", 
-                events: [
-                    {time:"07:00", title:"伊莉莎白線車站", type:"walk", note:"集合搭車",
-                     transport: {mode: "火車", text: "前往 Watford Junction", detail: "轉搭接駁車至片場，總程約 60 分鐘"}},
-                    {time:"13:00", title:"哈利波特影城", type:"fun", note:"Warner Bros. Studio",
-                     transport: {mode: "火車", text: "返回倫敦市區", detail: "同去程路線"}},
-                    {time:"", title:"唐人街 / King's Cross", type:"walk", note:"隨意逛逛"},
-                    {time:"22:00", title:"Evans & Peel", type:"fun", note:"偵探酒吧 (已預訂)"}
-                ]
-            },
-            { 
-                date: "2/22", day: "週日", 
-                events: [
-                    {time:"", title:"E Pellicci", type:"food", note:"英式大早餐",
-                     transport: {mode: "地鐵/公車", text: "前往 Bethnal Green", detail: "視起點而定"}},
-                    {time:"", title:"The Hidden City", type:"fun", note:"手機解謎探索",
-                     transport: {mode: "步行", text: "區域探索", detail: "步行活動"}},
-                    {time:"14:30", title:"The Murder Express", type:"fun", note:"懸疑劇午餐",
-                     transport: {mode: "步行", text: "前往 Brick Lane", detail: "約 10-15 分鐘"}},
-                    {time:"PM", title:"紅磚巷市集", type:"walk", note:"街頭藝人/大超市買伴手禮"}
-                ]
-            },
-            { 
-                date: "2/23", day: "週一", 
-                events: [
-                    {time:"09:00", title:"退房 & 寄放行李", type:"stay", note:"找附近的 Bounce",
-                     transport: {mode: "地鐵", text: "前往白金漢宮", detail: "Victoria 線，約 10 分鐘"}},
-                    {time:"10:30", title:"白金漢宮", type:"sight", note:"衛兵交接 (視情況)",
-                     transport: {mode: "伊莉莎白線", text: "市區 → Heathrow", detail: "預留 1 小時交通時間"}},
-                    {time:"17:00", title:"Heathrow T3", type:"flight", note:"準備返台"},
-                    {time:"18:35", title:"TPE T1", type:"flight", note:"抵達 (+1天)"}
-                ]
-            }
-        ];
-
         function renderItinerary() {
             let html = '';
             itineraryData.forEach(day => {
                 let evs = '';
-                day.events.forEach((e, index) => {
+                day.events.forEach(e => {
                     let c = 'text-gray-400', i = 'fa-circle', b = 'border-gray-300';
                     if(e.type==='flight'){c='text-british-red';i='fa-plane';b='border-british-red';}
                     if(e.type==='food'){c='text-antique-gold';i='fa-utensils';b='border-antique-gold';}
@@ -672,27 +674,29 @@
                     if(e.type==='fun'){c='text-pink-600';i='fa-masks-theater';b='border-pink-600';}
                     if(e.type==='shop'){c='text-green-600';i='fa-bag-shopping';b='border-green-600';}
 
-                    // 交通資訊區塊
                     let transportHtml = '';
                     if (e.transport) {
                         transportHtml = `
-                            <div class="transport-line text-xs text-gray-500 mb-4">
+                            <div class="transport-line text-xs text-gray-500 mb-4 ml-6">
                                 <div class="flex items-center gap-2 bg-gray-100 rounded px-2 py-1 inline-block">
                                     <i class="fa-solid fa-shoe-prints text-gray-400"></i>
                                     <span class="font-bold text-royal-navy">${e.transport.mode}</span>
                                     <span>${e.transport.text}</span>
                                 </div>
                                 <div class="mt-1 pl-1 opacity-70"><i class="fa-solid fa-clock text-[10px] mr-1"></i>${e.transport.detail}</div>
-                            </div>
-                        `;
+                            </div>`;
                     }
+
+                    // 正確的 Google Maps 搜尋連結
+                    const mapQuery = e.mapQuery ? e.mapQuery : (e.title + " London");
+                    const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`;
 
                     evs += `
                         <div class="ml-6 relative group">
                             <div class="absolute -left-[33px] top-3 w-4 h-4 bg-parchment border-2 border-royal-navy rounded-full z-10 flex items-center justify-center">
                                 <div class="w-1.5 h-1.5 bg-royal-navy rounded-full"></div>
                             </div>
-                            <div class="bg-white p-3 rounded shadow-paper border-l-4 ${b} flex justify-between items-start mb-4 cursor-pointer btn-press" onclick="window.open('https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(e.title + " London")}', '_blank')">
+                            <div class="bg-white p-3 rounded shadow-paper border-l-4 ${b} flex justify-between items-start mb-4 cursor-pointer btn-press" onclick="window.open('${mapUrl}', '_blank')">
                                 <div>
                                     <div class="flex items-center gap-2 mb-1">
                                         <span class="font-bold text-royal-navy text-sm font-serif">${e.title}</span>
@@ -702,11 +706,12 @@
                                 </div>
                                 <i class="fa-solid fa-chevron-right text-gray-200 text-xs mt-2"></i>
                             </div>
-                            ${transportHtml}
-                        </div>`;
+                        </div>
+                        ${transportHtml}`; // Transport line moved outside the card div
                 });
+                
                 html += `
-                    <div class="mb-8 relative">
+                    <div class="mb-8 relative" id="day-${day.fullDate}">
                         <div class="absolute left-1.5 top-8 bottom-0 w-0.5 bg-gray-300"></div>
                         <div class="flex items-baseline mb-4 relative z-10">
                             <span class="text-3xl font-cinzel font-bold text-royal-navy mr-2">${day.date.split('/')[1]}</span>
@@ -718,21 +723,19 @@
             document.getElementById('itinerary-list').innerHTML = html;
         }
 
-        // --- 3. 可編輯清單系統 (Editable Checklist) ---
-        // 預設物品清單 (Updated)
+        // Checklist Logic
         const defaultChecklistItems = [
+            "信用卡(VISA/MASTER CARD)-可當交通卡用",
+            "行動電源 (須標示Wh，100Wh以下免申報)",
             "泳衣", "毛巾", "牙刷", "保暖衣物 (0-9°C)",
-            "240V 轉接插頭", "充電器/行動電源",
+            "240V 轉接插頭", "充電器",
             "手機掛繩", "護照", "雨具/防水風衣"
         ];
-        
         function loadChecklist() {
-            // Updated key to v3 to force new defaults for users
-            let items = JSON.parse(localStorage.getItem('uk_trip_list_v3'));
-            // 如果是第一次使用 (v3)，載入新預設值
+            let items = JSON.parse(localStorage.getItem('uk_trip_list_v5'));
             if (!items) {
                 items = defaultChecklistItems.map(txt => ({ text: txt, done: false }));
-                localStorage.setItem('uk_trip_list_v3', JSON.stringify(items));
+                localStorage.setItem('uk_trip_list_v5', JSON.stringify(items));
             }
             renderChecklistUI(items);
         }
@@ -741,7 +744,6 @@
             const container = document.getElementById('checklist-container');
             container.innerHTML = '';
             let doneCount = 0;
-
             items.forEach((item, index) => {
                 if (item.done) doneCount++;
                 const div = document.createElement('div');
@@ -753,20 +755,16 @@
                         </div>
                         <span class="ml-3 font-medium text-sm ${item.done ? 'line-through text-gray-400' : 'text-royal-navy'}">${item.text}</span>
                     </div>
-                    <button onclick="deleteItem(${index})" class="ml-2 text-gray-300 hover:text-red-500 px-2 py-1"><i class="fa-solid fa-trash-can"></i></button>
-                `;
+                    <button onclick="deleteItem(${index})" class="ml-2 text-gray-300 hover:text-red-500 px-2 py-1"><i class="fa-solid fa-trash-can"></i></button>`;
                 container.appendChild(div);
             });
-            
-            // Update counts
-            const total = items.length;
-            document.getElementById('progress-text').innerText = `${doneCount}/${total}`;
+            document.getElementById('progress-text').innerText = `${doneCount}/${items.length}`;
         }
 
         function toggleItem(index) {
-            let items = JSON.parse(localStorage.getItem('uk_trip_list_v3'));
+            let items = JSON.parse(localStorage.getItem('uk_trip_list_v5'));
             items[index].done = !items[index].done;
-            localStorage.setItem('uk_trip_list_v3', JSON.stringify(items));
+            localStorage.setItem('uk_trip_list_v5', JSON.stringify(items));
             renderChecklistUI(items);
         }
 
@@ -774,56 +772,21 @@
             const input = document.getElementById('new-item-input');
             const val = input.value.trim();
             if (!val) return;
-            
-            let items = JSON.parse(localStorage.getItem('uk_trip_list_v3')) || [];
+            let items = JSON.parse(localStorage.getItem('uk_trip_list_v5')) || [];
             items.push({ text: val, done: false });
-            localStorage.setItem('uk_trip_list_v3', JSON.stringify(items));
+            localStorage.setItem('uk_trip_list_v5', JSON.stringify(items));
             input.value = '';
             renderChecklistUI(items);
         }
 
         function deleteItem(index) {
-            if (!confirm('確定刪除此項目？')) return;
-            let items = JSON.parse(localStorage.getItem('uk_trip_list_v3'));
+            if (!confirm('刪除？')) return;
+            let items = JSON.parse(localStorage.getItem('uk_trip_list_v5'));
             items.splice(index, 1);
-            localStorage.setItem('uk_trip_list_v3', JSON.stringify(items));
+            localStorage.setItem('uk_trip_list_v5', JSON.stringify(items));
             renderChecklistUI(items);
         }
 
-        // --- 4. 模擬天氣資料 (Simulated Weather) ---
-        function renderWeather() {
-            // 模擬 24H 預報資料
-            const hours = [];
-            let currentHour = new Date().getHours();
-            for (let i = 0; i < 24; i++) {
-                let h = (currentHour + i) % 24;
-                let temp = 8 + Math.floor(Math.random() * 5) - 2; // 6-11度之間
-                let icon = 'fa-cloud';
-                if (temp < 7) icon = 'fa-cloud-rain';
-                if (h > 6 && h < 18 && Math.random() > 0.7) icon = 'fa-cloud-sun';
-                
-                hours.push({
-                    time: `${h}:00`,
-                    temp: temp,
-                    icon: icon
-                });
-            }
-
-            const container = document.getElementById('hourly-forecast');
-            let html = '';
-            hours.forEach(h => {
-                html += `
-                    <div class="flex flex-col items-center min-w-[3.5rem]">
-                        <span class="text-[10px] opacity-70 mb-1">${h.time}</span>
-                        <i class="fa-solid ${h.icon} text-lg mb-1"></i>
-                        <span class="text-sm font-bold">${h.temp}°</span>
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
-        }
-
-        // --- Common Functions ---
         function switchTab(tabId) {
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             document.getElementById('nav-' + tabId).classList.add('active');
@@ -834,22 +797,29 @@
         function saveRate(){ localStorage.setItem('uk_trip_rate',document.getElementById('exchange-rate').value); }
         function calculate(){ try{const r=parseFloat(document.getElementById('exchange-rate').value)||41.5; const v=eval(document.getElementById('calc-input').value); document.getElementById('result-twd').innerText="NT$ "+Math.round(v*r).toLocaleString();}catch(e){document.getElementById('result-twd').innerText="錯誤";}}
 
+        function scrollToToday() {
+            const today = new Date().toISOString().split('T')[0]; 
+            const todayElement = document.getElementById(`day-${today}`);
+            if (todayElement) {
+                todayElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
         window.onload = function() {
             setTimeout(() => { const s=document.getElementById('splash-screen'); s.style.opacity='0'; setTimeout(()=>s.remove(),800); }, 1500);
             renderItinerary();
             renderGuide();
             loadChecklist();
-            renderWeather();
+            fetchWeather(); // Call Weather API
             
             const r = localStorage.getItem('uk_trip_rate'); if(r)document.getElementById('exchange-rate').value=r;
             
-            // Bind enter key for checklist
             document.getElementById('new-item-input').addEventListener('keypress', function (e) {
                 if (e.key === 'Enter') addItem();
             });
+
+            setTimeout(scrollToToday, 500);
         };
     </script>
 </body>
-
 </html>
-
