@@ -75,7 +75,7 @@
             border-top: 1px solid rgba(197, 160, 101, 0.3);
         }
 
-        .tab-content { display: none; opacity: 0; transition: opacity 0.3s ease; }
+        .tab-content { display: none; opacity: 0; transition: opacity 0.3s ease; height: 100%; }
         .tab-content.active { display: block; opacity: 1; }
 
         .btn-press:active { transform: scale(0.98); transition: transform 0.1s; }
@@ -115,6 +115,18 @@
             padding-bottom: 0.5rem;
         }
         .weather-scroll::-webkit-scrollbar { display: none; }
+
+        /* Date Sidebar Active State */
+        .date-btn.active {
+            background-color: #0F172A;
+            color: #F9F7F2;
+            border-left: 4px solid #C5A065;
+        }
+        .date-btn.active .day-label { color: #C5A065; }
+        .date-btn {
+            transition: all 0.2s;
+            border-left: 4px solid transparent;
+        }
     </style>
 </head>
 <body class="flex flex-col h-[100dvh]">
@@ -153,11 +165,11 @@
         </div>
     </div>
 
-    <header class="bg-royal-navy text-white pt-safe-top pb-4 px-6 shadow-xl z-20 shrink-0 relative overflow-hidden">
+    <header class="bg-royal-navy text-white pt-safe-top pb-4 px-6 shadow-xl z-20 shrink-0 relative overflow-hidden h-[90px] flex items-end">
         <div class="absolute top-0 right-0 opacity-10 transform translate-x-10 -translate-y-5">
             <i class="fa-solid fa-union-jack text-9xl"></i>
         </div>
-        <div class="flex justify-between items-end mt-2 relative z-10">
+        <div class="flex justify-between items-end w-full relative z-10">
             <div>
                 <p class="text-antique-gold text-xs font-bold uppercase tracking-widest mb-1">Travel Itinerary</p>
                 <h1 class="font-serif text-2xl font-bold tracking-wide">英國倫敦</h1>
@@ -169,26 +181,34 @@
         </div>
     </header>
 
-    <main id="main-container" class="flex-1 overflow-y-auto overflow-x-hidden bg-parchment pb-24 relative">
+    <main id="main-container" class="flex-1 overflow-hidden bg-parchment pb-[65px] relative">
         
-        <div id="plan" class="tab-content active px-4 py-6 space-y-6">
-            <div class="bg-white rounded-xl shadow-floating p-5 relative overflow-hidden animate-in">
-                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-british-red to-royal-navy"></div>
-                <div class="flex justify-between items-center text-center mt-2">
-                    <div><div class="text-3xl font-cinzel font-bold text-royal-navy">TPE</div><div class="text-xs text-gray-500">台北</div></div>
-                    <div class="flex-1 px-4 flex flex-col items-center">
-                        <i class="fa-solid fa-plane text-british-red text-lg mb-1"></i>
-                        <div class="w-full h-px bg-gray-300"></div>
-                        <span class="text-[10px] text-gray-400 mt-1">13h 15m</span>
+        <div id="plan" class="tab-content active h-full">
+            <div class="flex h-full">
+                <div id="date-sidebar" class="w-[85px] bg-white border-r border-gray-200 overflow-y-auto hide-scroll pb-24 shrink-0 shadow-inner z-10">
                     </div>
-                    <div><div class="text-3xl font-cinzel font-bold text-royal-navy">LHR</div><div class="text-xs text-gray-500">倫敦</div></div>
+
+                <div id="day-details-container" class="flex-1 overflow-y-auto hide-scroll pb-24 bg-parchment p-4 relative">
+                    <div class="bg-white rounded-xl shadow-floating p-4 relative overflow-hidden mb-6">
+                        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-british-red to-royal-navy"></div>
+                        <div class="flex justify-between items-center text-center mt-2">
+                            <div><div class="text-2xl font-cinzel font-bold text-royal-navy">TPE</div><div class="text-[10px] text-gray-500">台北</div></div>
+                            <div class="flex-1 px-2 flex flex-col items-center">
+                                <i class="fa-solid fa-plane text-british-red text-sm mb-1"></i>
+                                <div class="w-full h-px bg-gray-300"></div>
+                                <span class="text-[9px] text-gray-400 mt-0.5">13h 15m</span>
+                            </div>
+                            <div><div class="text-2xl font-cinzel font-bold text-royal-navy">LHR</div><div class="text-[10px] text-gray-500">倫敦</div></div>
+                        </div>
+                    </div>
+
+                    <div id="current-day-content" class="animate-in">
+                        </div>
                 </div>
             </div>
-
-            <div id="itinerary-list" class="animate-in" style="animation-delay: 0.1s;"></div>
         </div>
 
-        <div id="guide" class="tab-content px-4 py-6">
+        <div id="guide" class="tab-content px-4 py-6 overflow-y-auto hide-scroll">
             <h2 class="font-serif text-2xl text-center text-royal-navy mb-8 relative font-bold">
                 <span class="bg-parchment px-4 relative z-10">深度導覽</span>
                 <div class="absolute top-1/2 left-0 w-full h-px bg-antique-gold/30 -z-0"></div>
@@ -196,7 +216,7 @@
             <div class="grid grid-cols-1 gap-4" id="guide-list"></div>
         </div>
 
-        <div id="wallet" class="tab-content px-4 py-6">
+        <div id="wallet" class="tab-content px-4 py-6 overflow-y-auto hide-scroll">
             <div class="bg-royal-navy rounded-2xl p-6 shadow-floating text-white relative overflow-hidden mb-6">
                 <div class="absolute -right-10 -top-10 w-32 h-32 bg-antique-gold rounded-full opacity-10"></div>
                 <h3 class="font-serif text-lg mb-6 flex items-center"><i class="fa-solid fa-sterling-sign mr-2 text-antique-gold"></i> 匯率換算</h3>
@@ -224,7 +244,7 @@
             </a>
         </div>
 
-        <div id="lists" class="tab-content px-4 py-6">
+        <div id="lists" class="tab-content px-4 py-6 overflow-y-auto hide-scroll">
             <div class="bg-white rounded-xl shadow-floating overflow-hidden mb-6">
                 <div class="bg-royal-navy px-4 py-3 flex justify-between items-center">
                     <h3 class="font-serif text-white font-bold"><i class="fa-solid fa-clipboard-check mr-2 text-antique-gold"></i>準備清單</h3>
@@ -290,7 +310,7 @@
             </div>
         </div>
 
-        <div id="info" class="tab-content px-4 py-6 space-y-4">
+        <div id="info" class="tab-content px-4 py-6 overflow-y-auto hide-scroll">
             
             <div class="bg-gradient-to-br from-blue-500 to-blue-700 text-white rounded-xl p-5 shadow-floating relative overflow-hidden" id="weather-widget">
                 <div class="absolute right-[-20px] top-[-20px] opacity-20"><i class="fa-solid fa-cloud text-9xl"></i></div>
@@ -743,66 +763,88 @@
             document.body.style.overflow = '';
         }
 
+        let selectedDayIndex = 0;
+
         function renderItinerary() {
-            let html = '';
-            itineraryData.forEach(day => {
-                let evs = '';
-                day.events.forEach(e => {
-                    let c = 'text-gray-400', i = 'fa-circle', b = 'border-gray-300';
-                    if(e.type==='flight'){c='text-british-red';i='fa-plane';b='border-british-red';}
-                    if(e.type==='food'){c='text-antique-gold';i='fa-utensils';b='border-antique-gold';}
-                    if(e.type==='show'){c='text-purple-700';i='fa-ticket';b='border-purple-700';}
-                    if(e.type==='sight'){c='text-royal-navy';i='fa-camera';b='border-royal-navy';}
-                    if(e.type==='fun'){c='text-pink-600';i='fa-masks-theater';b='border-pink-600';}
-                    if(e.type==='shop'){c='text-green-600';i='fa-bag-shopping';b='border-green-600';}
-
-                    let transportHtml = '';
-                    if (e.transport) {
-                        transportHtml = `
-                            <div class="transport-line text-xs text-gray-500 mb-4 ml-6">
-                                <div class="flex items-center gap-2 bg-gray-100 rounded px-2 py-1 inline-block">
-                                    <i class="fa-solid fa-shoe-prints text-gray-400"></i>
-                                    <span class="font-bold text-royal-navy">${e.transport.mode}</span>
-                                    <span>${e.transport.text}</span>
-                                </div>
-                                <div class="mt-1 pl-1 opacity-70"><i class="fa-solid fa-clock text-[10px] mr-1"></i>${e.transport.detail}</div>
-                            </div>`;
-                    }
-
-                    // 正確的 Google Maps 搜尋連結
-                    const mapQuery = e.mapQuery ? e.mapQuery : (e.title + " London");
-                    const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`;
-
-                    evs += `
-                        <div class="ml-6 relative group">
-                            <div class="absolute -left-[33px] top-3 w-4 h-4 bg-parchment border-2 border-royal-navy rounded-full z-10 flex items-center justify-center">
-                                <div class="w-1.5 h-1.5 bg-royal-navy rounded-full"></div>
-                            </div>
-                            <div class="bg-white p-3 rounded shadow-paper border-l-4 ${b} flex justify-between items-start mb-4 cursor-pointer btn-press" onclick="window.open('${mapUrl}', '_blank')">
-                                <div>
-                                    <div class="flex items-center gap-2 mb-1">
-                                        <span class="font-bold text-royal-navy text-sm font-serif">${e.title}</span>
-                                        <i class="${i} ${c} text-xs opacity-70"></i>
-                                    </div>
-                                    <div class="text-xs text-gray-500 font-mono">${e.time} ${e.note?'• '+e.note:''}</div>
-                                </div>
-                                <i class="fa-solid fa-chevron-right text-gray-200 text-xs mt-2"></i>
-                            </div>
-                        </div>
-                        ${transportHtml}`; // Transport line moved outside the card div
-                });
-                
-                html += `
-                    <div class="mb-8 relative" id="day-${day.fullDate}">
-                        <div class="absolute left-1.5 top-8 bottom-0 w-0.5 bg-gray-300"></div>
-                        <div class="flex items-baseline mb-4 relative z-10">
-                            <span class="text-3xl font-cinzel font-bold text-royal-navy mr-2">${day.date.split('/')[1]}</span>
-                            <span class="text-xs font-bold text-antique-gold bg-royal-navy px-2 py-1 rounded">${day.day}</span>
-                        </div>
-                        ${evs}
-                    </div>`;
+            // 1. Render Sidebar Dates
+            const sidebar = document.getElementById('date-sidebar');
+            let sidebarHtml = '';
+            
+            itineraryData.forEach((day, index) => {
+                const dateParts = day.date.split('/');
+                sidebarHtml += `
+                    <div onclick="selectDay(${index})" class="date-btn w-full py-4 border-b border-gray-100 flex flex-col items-center justify-center cursor-pointer ${index === selectedDayIndex ? 'active' : 'text-gray-400'}">
+                        <span class="font-cinzel text-xl font-bold leading-none mb-1">${dateParts[1]}</span>
+                        <span class="text-[10px] font-bold uppercase day-label">${day.day}</span>
+                    </div>
+                `;
             });
-            document.getElementById('itinerary-list').innerHTML = html;
+            sidebar.innerHTML = sidebarHtml;
+
+            // 2. Render Content for Selected Day
+            const day = itineraryData[selectedDayIndex];
+            const contentContainer = document.getElementById('current-day-content');
+            let evs = '';
+            
+            day.events.forEach(e => {
+                let c = 'text-gray-400', i = 'fa-circle', b = 'border-gray-300';
+                if(e.type==='flight'){c='text-british-red';i='fa-plane';b='border-british-red';}
+                if(e.type==='food'){c='text-antique-gold';i='fa-utensils';b='border-antique-gold';}
+                if(e.type==='show'){c='text-purple-700';i='fa-ticket';b='border-purple-700';}
+                if(e.type==='sight'){c='text-royal-navy';i='fa-camera';b='border-royal-navy';}
+                if(e.type==='fun'){c='text-pink-600';i='fa-masks-theater';b='border-pink-600';}
+                if(e.type==='shop'){c='text-green-600';i='fa-bag-shopping';b='border-green-600';}
+
+                let transportHtml = '';
+                if (e.transport) {
+                    transportHtml = `
+                        <div class="transport-line text-xs text-gray-500 mb-4 ml-6">
+                            <div class="flex items-center gap-2 bg-gray-100 rounded px-2 py-1 inline-block">
+                                <i class="fa-solid fa-shoe-prints text-gray-400"></i>
+                                <span class="font-bold text-royal-navy">${e.transport.mode}</span>
+                                <span>${e.transport.text}</span>
+                            </div>
+                            <div class="mt-1 pl-1 opacity-70"><i class="fa-solid fa-clock text-[10px] mr-1"></i>${e.transport.detail}</div>
+                        </div>`;
+                }
+
+                const mapQuery = e.mapQuery ? e.mapQuery : (e.title + " London");
+                const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`;
+
+                evs += `
+                    <div class="ml-2 relative group">
+                        <div class="absolute -left-[13px] top-3 w-3 h-3 bg-parchment border-2 border-royal-navy rounded-full z-10 flex items-center justify-center">
+                            <div class="w-1 h-1 bg-royal-navy rounded-full"></div>
+                        </div>
+                        <div class="bg-white p-3 rounded shadow-paper border-l-4 ${b} flex justify-between items-start mb-4 cursor-pointer btn-press" onclick="window.open('${mapUrl}', '_blank')">
+                            <div>
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="font-bold text-royal-navy text-sm font-serif">${e.title}</span>
+                                    <i class="${i} ${c} text-xs opacity-70"></i>
+                                </div>
+                                <div class="text-xs text-gray-500 font-mono">${e.time} ${e.note?'• '+e.note:''}</div>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-gray-200 text-xs mt-2"></i>
+                        </div>
+                    </div>
+                    ${transportHtml}`;
+            });
+
+            contentContainer.innerHTML = `
+                <div class="relative pl-3 border-l border-gray-300 ml-2">
+                    <div class="mb-4">
+                        <h2 class="text-2xl font-serif font-bold text-royal-navy">${day.date} <span class="text-sm font-sans text-antique-gold ml-2">${day.day}</span></h2>
+                    </div>
+                    ${evs}
+                </div>
+            `;
+        }
+
+        function selectDay(index) {
+            selectedDayIndex = index;
+            renderItinerary();
+            // Scroll right content to top
+            document.getElementById('day-details-container').scrollTop = 0;
         }
 
         // Checklist Logic
@@ -880,10 +922,19 @@
         function calculate(){ try{const r=parseFloat(document.getElementById('exchange-rate').value)||41.5; const v=eval(document.getElementById('calc-input').value); document.getElementById('result-twd').innerText="NT$ "+Math.round(v*r).toLocaleString();}catch(e){document.getElementById('result-twd').innerText="錯誤";}}
 
         function scrollToToday() {
-            const today = new Date().toISOString().split('T')[0]; 
-            const todayElement = document.getElementById(`day-${today}`);
-            if (todayElement) {
-                todayElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            const todayStr = new Date().toISOString().split('T')[0]; // "2026-02-14"
+            const index = itineraryData.findIndex(day => day.fullDate === todayStr);
+            if (index !== -1) {
+                selectDay(index);
+                // Also scroll sidebar to make sure the date is visible
+                const sidebar = document.getElementById('date-sidebar');
+                const btn = sidebar.children[index];
+                if (btn) {
+                    btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            } else {
+                // Default to day 0 if today is not found
+                selectDay(0);
             }
         }
 
