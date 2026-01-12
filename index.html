@@ -86,6 +86,11 @@
         #modal-content { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); transform: translateY(100%); }
         .visible-modal #modal-content { transform: translateY(0); }
         
+        /* 彩蛋視窗樣式 */
+        #easter-egg-modal { transition: opacity 0.3s; }
+        #easter-egg-modal.hidden-modal { pointer-events: none; opacity: 0; }
+        #easter-egg-modal.visible-modal { pointer-events: auto; opacity: 1; }
+
         .rich-text p { margin-bottom: 1em; line-height: 1.6; }
         .rich-text strong { color: #0F172A; font-weight: 700; }
         .rich-text ul { list-style-type: disc; padding-left: 1.5em; margin-bottom: 1em; }
@@ -116,7 +121,7 @@
         }
         .weather-scroll::-webkit-scrollbar { display: none; }
 
-        /* Date Sidebar Active State */
+        /* Sidebar Styling */
         .date-btn.active {
             background-color: #0F172A;
             color: #F9F7F2;
@@ -165,8 +170,29 @@
         </div>
     </div>
 
+    <div id="easter-egg-modal" class="fixed inset-0 z-[110] hidden-modal flex items-center justify-center p-6">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-md" onclick="closeEasterEgg()"></div>
+        <div class="bg-white rounded-2xl p-6 relative w-full max-w-sm text-center shadow-2xl transform scale-100 transition-transform">
+            <button onclick="closeEasterEgg()" class="absolute top-2 right-2 w-8 h-8 flex items-center justify-center text-gray-400 hover:text-royal-navy">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            
+            <div class="mb-4 mt-2">
+                <img src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?q=80&w=600&auto=format&fit=crop" class="w-full h-48 object-cover rounded-xl shadow-lg mb-4" alt="Secret">
+                
+                <h3 class="font-cinzel text-2xl font-bold text-royal-navy mb-2">BON VOYAGE!</h3>
+                <p class="font-serif text-gray-600 italic leading-relaxed">
+                    願你在倫敦的每一天<br>
+                    都如電影般精彩。<br>
+                    Enjoy every moment.
+                </p>
+            </div>
+            <button onclick="closeEasterEgg()" class="bg-antique-gold text-royal-navy font-bold py-2 px-6 rounded-full text-sm mt-2 btn-press">Close</button>
+        </div>
+    </div>
+
     <header class="bg-royal-navy text-white pt-safe-top pb-4 px-6 shadow-xl z-20 shrink-0 relative overflow-hidden h-[90px] flex items-end">
-        <div class="absolute top-0 right-0 opacity-10 transform translate-x-10 -translate-y-5">
+        <div class="absolute top-0 right-0 opacity-10 transform translate-x-10 -translate-y-5 cursor-pointer active:opacity-20 transition-opacity" onclick="triggerEasterEgg()">
             <i class="fa-solid fa-union-jack text-9xl"></i>
         </div>
         <div class="flex justify-between items-end w-full relative z-10">
@@ -189,19 +215,6 @@
                     </div>
 
                 <div id="day-details-container" class="flex-1 overflow-y-auto hide-scroll pb-24 bg-parchment p-4 relative">
-                    <div class="bg-white rounded-xl shadow-floating p-4 relative overflow-hidden mb-6">
-                        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-british-red to-royal-navy"></div>
-                        <div class="flex justify-between items-center text-center mt-2">
-                            <div><div class="text-2xl font-cinzel font-bold text-royal-navy">TPE</div><div class="text-[10px] text-gray-500">台北</div></div>
-                            <div class="flex-1 px-2 flex flex-col items-center">
-                                <i class="fa-solid fa-plane text-british-red text-sm mb-1"></i>
-                                <div class="w-full h-px bg-gray-300"></div>
-                                <span class="text-[9px] text-gray-400 mt-0.5">13h 15m</span>
-                            </div>
-                            <div><div class="text-2xl font-cinzel font-bold text-royal-navy">LHR</div><div class="text-[10px] text-gray-500">倫敦</div></div>
-                        </div>
-                    </div>
-
                     <div id="current-day-content" class="animate-in">
                         </div>
                 </div>
@@ -459,7 +472,7 @@
             }
         }
 
-        // --- Guide Data (內容保持不變) ---
+        // --- Guide Data (Updated) ---
         const guideData = [
             { id: 'tower_london', icon: 'fa-solid fa-chess-rook', title: '倫敦塔', en: 'Tower of London', tag: '世界遺產', img: 'tower.jpg', intro: '這座矗立在泰晤士河畔近千年的堡壘，見證了英國最黑暗與榮耀的歷史。它曾是皇宮、軍火庫、鑄幣廠，也是令人聞風喪膽的國家監獄與刑場。', details: [{ title: '白塔 (White Tower)', content: '由征服者威廉於 1078 年下令建造，是諾曼軍事建築的典範。現在內部展示著歷代國王的豪華盔甲，包括亨利八世那套著名的巨大盔甲。' }, { title: '皇冠珠寶 (Crown Jewels)', content: '絕對必看！位於滑鐵盧兵營內，展示著仍在使用的帝國皇冠（鑲有 2868 顆鑽石）。注意尋找權杖上的「非洲之星 I」（530克拉）以及太后皇冠上的「光之山」鑽石。' }, { title: '渡鴉傳說', content: '傳說如果塔裡的六隻渡鴉飛走，王國就會崩塌。因此這裡有專門的「渡鴉官」照料牠們，且牠們的單側翅膀羽毛稍作修剪以防飛離。' }, { title: '血腥歷史', content: '這裡曾處決過三位英格蘭王后，包括安妮·博林。綠塔 (Tower Green) 遺址設有紀念碑，是曾經的高貴囚犯被斬首之地。' }] },
             { id: 'borough_market', icon: 'fa-solid fa-utensils', title: '波羅市場', en: 'Borough Market', tag: '美食聖地', img: 'market.jpg', intro: '倫敦最古老的食品市場，位於鐵路高架橋下的獨特工業風格。這裡是全球老饕的必訪之地，匯集了英國最棒的農產品與街頭小吃。', details: [{ title: '必吃推薦', content: '<ul><li><strong>Richard Haward\'s Oysters</strong>：新鮮便宜的生蠔，搭配紅酒醋與塔巴斯科辣椒醬。</li><li><strong>Monmouth Coffee</strong>：倫敦傳奇咖啡，手沖與拿鐵都極具水準。</li><li><strong>Bread Ahead</strong>：著名的爆漿甜甜圈，香草與焦糖口味最受歡迎。</li><li><strong>西班牙燉飯</strong>：現煮的大鍋海鮮燉飯，香氣四溢。</li></ul>' }, { title: '哈利波特取景', content: '市場旁的鐵路橋下是《哈利波特：阿茲卡班的逃犯》中，騎士公車停靠「破釜酒吧」的入口拍攝地。' }] },
@@ -501,23 +514,24 @@
                 img: 'lion_king.jpg', 
                 intro: '<p>故事發生在非洲大草原「榮耀大地（Pride Lands）」。</p><p>獅王 木法沙（Mufasa） 與王后 沙拉碧（Sarabi） 迎來新生王子 辛巴（Simba）。在萬物的見證下，辛巴被祝福成為未來的國王。然而，木法沙的弟弟 刀疤（Scar） 因覬覦王位，暗中策畫陰謀。</p><p>刀疤設計讓辛巴誤以為自己害死父親，木法沙在營救辛巴時遭刀疤推落山谷身亡。辛巴在罪惡感與恐懼中逃離家園。</p><p>流亡途中，辛巴遇見 彭彭（Pumbaa） 與 丁滿（Timon），過上「Hakuna Matata」的無憂生活，漸漸忘記自己的責任。多年後，辛巴長大成人，青梅竹馬 娜拉（Nala） 尋來，希望他回去拯救被刀疤與鬣狗統治、已荒蕪的榮耀大地。</p><p>在巫師 拉飛奇（Rafiki） 與父親亡靈的指引下，辛巴重新認識「生命循環」與「責任」，鼓起勇氣回到故鄉，擊敗刀疤，恢復王位，讓生命重回平衡。</p>', 
                 details: [
-                    { title: '第一幕 Act I: Circle of Life（生命之環）', content: '音樂劇在非洲大草原的日出中展開，各種動物齊聚榮耀大地，迎接獅王木法沙與王后沙拉碧之子辛巴的誕生。拉飛奇為新生王子祝福，宣告生命循環的開始，這首歌奠定全劇關於命運、自然與責任的核心主題。' },
-                    { title: 'Grasslands Chant（草原吟唱）', content: '部落式的吟唱描繪榮耀大地生生不息的活力，呈現動物與自然之間的連結，讓觀眾沉浸在非洲文化與原始能量之中，也延續「生命之環」的概念。' },
-                    { title: 'The Lion Sleeps Tonight（獅子今晚安眠）', content: '在平靜的夜晚，動物們以輕快幽默的歌聲描繪草原的日常，營造出和諧與安全的氛圍，對比日後即將發生的陰謀與悲劇。' },
-                    { title: 'I Just Can’t Wait to Be King（我迫不及待想當王）', content: '年幼的辛巴幻想成為國王後可以為所欲為，與娜拉一起嘲笑規矩與責任，展現他天真、自信卻尚未成熟的一面，也暗示他對王者責任的誤解。' },
-                    { title: 'Chow Down（大快朵頤）', content: '刀疤暗中操縱鬣狗，向他們承諾食物與權力，誘使他們成為自己的同盟。這首歌揭露刀疤的野心，也預示榮耀大地即將陷入混亂。' },
-                    { title: 'They Live in You（他們活在你心中）', content: '木法沙教導辛巴祖先的精神永遠與他同在，提醒他未來身為國王所必須承擔的責任。這首歌強調傳承與生命循環，也深化父子之間的情感連結。' },
-                    { title: 'Be Prepared（準備好）', content: '刀疤公開展露奪權的計畫，煽動鬣狗推翻現有秩序，整首歌充滿陰暗與諷刺，象徵權力被扭曲與濫用的危險。' },
-                    { title: 'The Stampede（角馬狂奔）', content: '刀疤設下陷阱，引發角馬狂奔，木法沙為救辛巴而犧牲。這一段以強烈的音樂與舞台效果呈現悲劇轉折，徹底改變辛巴的人生。' },
-                    { title: 'Rafiki Mourns（拉飛奇的哀悼）', content: '拉飛奇與動物們哀悼木法沙的死亡，榮耀大地失去了真正的國王，氣氛低沉而悲傷，象徵秩序的崩塌。' },
-                    { title: 'Hakuna Matata（哈庫那馬塔塔）', content: '逃離家園的辛巴遇見丁滿與彭彭，學會以「沒有煩惱」的態度生活。歌曲輕鬆幽默，呈現辛巴從童年到成年的成長過程，也顯示他暫時逃避了自己的責任。' },
-                    { title: '第二幕 Act II: One by One(逐步帶來改變與希望)', content: '在刀疤統治下的榮耀大地逐漸荒蕪，雌獅們在困境中彼此扶持，象徵希望並未完全消失。這首歌表現出即使在黑暗之中，生命仍能一點一滴地重新站起來。' },
-                    { title: 'The Madness of King Scar（刀疤的瘋狂）', content: '刀疤的暴政讓土地枯竭、族群失衡，他以恐懼與責任推卸來維持權力，顯示他並非真正的王者，也進一步突顯榮耀大地需要改變。' },
-                    { title: 'Shadowland（影之地）', content: '娜拉在荒蕪的土地上唱出對過去的思念與對未來的恐懼，最終決定離開家園尋找希望。這首歌展現她的勇氣與成長，是音樂劇中特別重要的情感時刻。' },
-                    { title: 'Can You Feel the Love Tonight（今夜愛無所不在）', content: '辛巴與娜拉重逢，在情感與命運的牽引下重新相愛。這首歌象徵成長後的成熟情感，也暗示辛巴內心開始動搖，逐漸面對自己的過去。' },
-                    { title: 'He Lives in You（他活在你心中）', content: '拉飛奇引導辛巴面對父親的記憶，木法沙的靈魂提醒他不要逃避自己的身分。這首歌象徵辛巴的覺醒，他終於理解責任是生命循環的一部分。' },
-                    { title: 'Simba Confronts Scar（辛巴對峙刀疤）', content: '辛巴回到榮耀大地，與刀疤正面對決，真相被揭露，他必須直面恐懼並承擔王者責任。音樂緊張而激烈，象徵成長的最後考驗。' },
-                    { title: 'King of Pride Rock / Circle of Life（終曲）', content: '辛巴登上王位，榮耀大地恢復生機，新生命誕生，生命循環再次展開。音樂回到開場的旋律，為故事畫下圓滿句點。' }
+                    { title: '1. Circle of Life〈生命之環〉', content: '非洲大草原迎來黎明，動物們從四面八方湧向榮耀石。巫師拉飛奇將新生的小獅子——<b>辛巴</b>高高舉起，向天地宣告新王子的誕生。這首歌奠定全劇核心概念：<b>萬物依循生命之環而生存，每個生命都有其位置與責任</b>。' },
+                    { title: '2. Grasslands Chant〈草原吟唱〉', content: '音樂延續草原的脈動，展現動物王國的秩序與平衡。這不只是背景，而是在暗示：<b>這個世界的穩定仰賴正確的統治者</b>。' },
+                    { title: '3. The Morning Report〈晨間報告〉', content: '犀鳥沙祖向國王<b>木法沙</b>報告王國近況。辛巴在一旁聽見國王每天必須處理繁瑣政務，開始意識到「當國王並不只是威風」。木法沙藉此教導辛巴：<b>權力伴隨責任，而不是為所欲為</b>。' },
+                    { title: '4. The Lion Sleeps Tonight〈獅子今晚沉睡〉', content: '夜晚降臨，動物們進入休息。這首歌帶來輕鬆、幽默的氛圍，讓觀眾短暫沉浸在和平的草原日常中，也為之後的悲劇形成強烈對比。' },
+                    { title: '5. I Just Can’t Wait to Be King〈我等不及要當王〉', content: '辛巴與青梅竹馬<b>娜娜拉</b>幻想未來：等他當上國王，就可以不聽大人管教、自由做任何事。歌曲充滿色彩與活力，表現辛巴的<b>天真、自大與不成熟</b>，也暗示他尚未理解王位真正的意義。' },
+                    { title: '6. Chow Down〈大快朵頤〉（部分版本刪除）', content: '王國邊緣的荒地中，<b>刀疤</b>與鬣狗密謀。刀疤以「等我當上國王，你們就能吃飽」作為誘惑，煽動鬣狗效忠。這首歌明確揭露：<b>刀疤渴望權力，並願意破壞生命之環來達成目的</b>。' },
+                    { title: '7. They Live in You〈他們活在你心中〉', content: '木法沙帶辛巴仰望星空，告訴他：過去的國王並未消失，而是活在後代心中。他教導辛巴：<b>王者的責任是守護整個生命循環，而不是只顧自己</b>。這段教誨將成為辛巴一生的精神根源。' },
+                    { title: '8. Be Prepared〈準備好〉', content: '刀疤正式向鬣狗宣布政變計畫。他嘲諷木法沙的統治，描繪自己登基後的世界。這首歌讓刀疤的<b>野心、怨恨與操弄人心的能力</b>完全展現。' },
+                    { title: '9. The Stampede〈狂奔〉', content: '刀疤誘騙辛巴進入峽谷，並製造角馬暴走。木法沙奮力救出辛巴，卻在攀上峭壁時被刀疤推下，當場喪命。這是全劇最關鍵的悲劇轉折。' },
+                    { title: '10. Rafiki Mourns〈拉飛奇哀悼〉', content: '暴風雨過後，拉飛奇獨自哀悼木法沙的死亡。草原失去王者，<b>生命之環開始動搖</b>。' },
+                    { title: '第二幕 Act II: 11. Hakuna Matata〈哈庫那瑪塔塔〉', content: '刀疤欺騙辛巴，讓他誤以為父親的死是自己的錯。辛巴逃離家園，在荒漠中遇見丁滿與彭彭。他們教他「Hakuna Matata（無憂無慮）」，辛巴選擇<b>逃避過去、拋棄責任</b>，迅速成長為成獅。' },
+                    { title: '12. One by One〈一個接一個〉', content: '在刀疤統治下，榮耀國荒蕪、獵物消失。娜娜拉帶領母獅們反抗鬣狗暴政，象徵即使在絕望中，仍有人選擇站出來對抗不義。' },
+                    { title: '13. The Madness of King Scar〈刀疤的瘋狂統治〉', content: '刀疤的統治導致生態崩潰。他沉溺權力、推卸責任，王國逐漸走向毀滅。這首歌對比木法沙的賢明，凸顯<b>錯誤統治者會破壞整個生命之環</b>。' },
+                    { title: '14. Shadowland〈影之國〉', content: '娜娜拉獨唱，描述她在黑暗國度中的恐懼與痛苦。最終，她決定離開家園，冒險尋找希望。這首歌表現她的<b>勇氣、成長與對王國的忠誠</b>。' },
+                    { title: '15. Can You Feel the Love Tonight〈今夜你是否感受到愛〉', content: '娜娜拉在荒原中與辛巴重逢。愛情重新喚醒辛巴內心的責任感，但他仍害怕面對過去的罪疚與真相。' },
+                    { title: '16. He Lives in You（Reprise）〈他活在你心中－重唱〉', content: '拉飛奇引導辛巴直面父親的靈魂。木法沙的聲音告訴他：<b>「你忘了你是誰。」</b>辛巴終於明白，逃避只會讓錯誤延續。' },
+                    { title: '17. Simba Confronts Scar〈辛巴對峙刀疤〉', content: '辛巴回到榮耀國，與刀疤正面衝突。在眾人面前，刀疤被逼承認真正的兇手是自己。鬣狗反噬刀疤，暴政終結。' },
+                    { title: '18. King of Pride Rock / Circle of Life（Reprise）', content: '辛巴登上榮耀石，成為真正的國王。雨水降臨，大地復甦，生命之環重新運轉。最後，拉飛奇再次舉起新的幼獅，故事回到最初的起點，象徵<b>責任、生命與希望的延續</b>。' }
                 ] 
             },
             { id: 'nhm', icon: 'fa-solid fa-bone', title: '自然史博物館', en: 'Natural History Museum', tag: '科學殿堂', img: 'nhm.jpg', intro: '被譽為「自然的大教堂」，維多利亞式的建築本身就是藝術品，外牆裝飾著精緻的動物浮雕。', details: [{ title: 'Hope 藍鯨', content: '懸掛在欣采大廳 (Hintze Hall) 空中的巨大藍鯨骨架，取代了以前的恐龍 Dippy，象徵對海洋的守護。' }, { title: '地球廳', content: '入口處有個穿越巨大金屬球體的紅色手扶梯，充滿科幻感，通往展示火山與地震的區域。' }] },
@@ -532,25 +546,48 @@
                 img: 'les_mis.jpg', 
                 intro: '<p>故事改編自雨果（Victor Hugo）的小說，背景為 19 世紀法國，圍繞「法律、良心、救贖與革命」。</p><p>主角尚萬強（Jean Valjean）因偷麵包救家人，被判苦役十九年。出獄後，他因主教的仁慈而決心改過自新，改名換姓，成為成功的工廠主與市長。然而，一生執著於法律正義的警察 賈維（Javert） 始終追捕他。</p><p>尚萬強收養被剝削的工人 芳婷（Fantine）之女珂賽特（Cosette），撫養她長大。多年後，珂賽特愛上青年革命者馬利尤斯（Marius）。</p><p>巴黎爆發學生革命，馬利尤斯參與街壘戰。尚萬強為救愛人之子，深入戰火，並在關鍵時刻饒恕賈維。賈維無法面對法律與良心的衝突，選擇自盡。</p><p>革命失敗，馬利尤斯倖存並與珂賽特結婚。尚萬強在平靜中辭世，完成一生的救贖。</p>', 
                 details: [
-                    { title: '第一幕 Act I: Look Down', content: '故事從苦役場開始，尚萬強與其他囚犯在沉重的勞動中度日，賈維以冷酷無情的態度監督著一切。囚犯被視為低等而無價值的人，這首歌迅速建立出社會的不公與壓迫，也揭示尚萬強與賈維之間日後無法化解的對立。' },
-                    { title: 'Valjean’s Soliloquy', content: '尚萬強出獄後被社會拒於門外，憤怒與絕望幾乎讓他再次墮落，但主教的仁慈讓他陷入深刻的內心掙扎。最終他選擇放下仇恨，改名換姓，決心成為一個正直的人，這首歌象徵他人生的重生與救贖的開始。' },
-                    { title: 'At the End of the Day', content: '工廠裡的工人們唱出一天辛苦勞動後的疲憊與無奈，芳婷努力隱瞞自己有孩子的事實，只求能保住工作寄錢給女兒。歌曲呈現貧窮如何逐步吞噬人的尊嚴，也為芳婷的悲劇命運鋪陳背景。' },
-                    { title: 'I Dreamed a Dream', content: '芳婷在被社會拋棄後，回憶自己年輕時對愛與幸福的美好幻想，並痛苦地意識到這些夢想早已破滅。她的歌聲訴說一個善良卻被現實擊垮的女性，成為全劇最動人的悲劇時刻之一。' },
-                    { title: 'Lovely Ladies', content: '為了女兒能活下去，芳婷一步步被迫賣掉自己的頭髮、牙齒，最終墮入妓女的生活。熱鬧的旋律包裹著殘酷的現實，諷刺社會如何將弱者逼向深淵，卻又對她們加以譴責。' },
-                    { title: 'Fantine’s Death', content: '病重的芳婷臨終前仍放不下女兒，尚萬強在床邊承諾會找回並照顧珂賽特。賈維此時出現試圖逮捕尚萬強，使法律與憐憫的衝突更加鮮明，也讓芳婷的悲劇人生畫下句點。' },
-                    { title: 'Castle on a Cloud', content: '年幼的珂賽特在德納第夫婦家中遭受虐待，卻仍天真地幻想著一個沒有恐懼、充滿溫暖的地方。這首歌以純真的視角反襯殘酷現實，使觀眾更加心疼她的處境。' },
-                    { title: 'Master of the House', content: '德納第夫婦以誇張滑稽的方式炫耀自己的狡詐與貪婪，一邊欺騙客人，一邊剝削珂賽特。這首歌以黑色幽默揭露人性的醜陋，同時短暫緩解整體劇情的沉重氛圍。' },
-                    { title: 'The Confrontation', content: '賈維終於與尚萬強正面衝突，揭露他過去的身分，兩人以激烈的對唱展現彼此信念的對立。一方相信人可以改變，另一方堅信法律不容動搖，這場對峙明確點出全劇最核心的思想衝突。' },
-                    { title: 'Stars', content: '賈維獨自仰望星空，將法律視為如宇宙秩序般神聖而不可侵犯。他深信只要維護規則，世界就能保持平衡，這首歌讓觀眾理解他為何始終無法接受尚萬強的改變。' },
-                    { title: 'Do You Hear the People Sing?', content: '學生革命者唱出人民的怒吼，號召眾人為自由與正義而戰。歌曲象徵社會的覺醒，也讓故事從個人的苦難，擴展為整個時代的抗爭。' },
-                    { title: '第二幕 Act II: On My Own', content: '艾潘妮在夜色中獨自唱出對馬利尤斯的愛，她明白這份感情注定得不到回應，卻仍無法停止付出。這首歌呈現最孤獨、最卑微卻也最真誠的愛。' },
-                    { title: 'One Day More', content: '革命前夕，所有角色的心境交織在同一首歌中，有人期待未來，有人恐懼明天，也有人準備迎接犧牲。這首歌將多條故事線匯聚，形成命運即將翻轉的高潮時刻。' },
-                    { title: 'Drink with Me', content: '學生們在戰鬥前靜靜飲酒，回憶友情與青春，心中清楚自己可能再也看不到明天。平靜的旋律中充滿哀傷，展現革命者面對死亡時的成熟與無奈。' },
-                    { title: 'Bring Him Home', content: '尚萬強在街壘中為馬利尤斯祈禱，希望上天能讓這名年輕人平安生還。歌聲溫柔而虔誠，展現尚萬強無私的父愛與慈悲之心。' },
-                    { title: 'The Final Battle', content: '街壘戰正式爆發，槍火與死亡迅速吞噬年輕的革命者，理想在現實面前徹底崩潰。這段音樂呈現革命失敗的殘酷代價。' },
-                    { title: 'Javert’s Suicide', content: '賈維在被尚萬強放走後，無法接受法律與良心之間的矛盾，他一生信奉的秩序完全崩塌，最終選擇結束自己的生命，象徵無法妥協的信念走向毀滅。' },
-                    { title: 'Empty Chairs at Empty Tables', content: '革命結束後，馬利尤斯獨自坐在空蕩的桌旁，悼念犧牲的朋友，質疑自己為何能夠活下來。這首歌描寫倖存者最深的痛苦與哀悼。' },
-                    { title: 'Finale', content: '尚萬強在生命的最後時刻回顧自己的一生，芳婷與艾潘妮迎接他走向安息。全體合唱再次唱出愛與寬恕，象徵即使世界充滿苦難，人仍能在彼此的愛中獲得救贖。' }
+                    { title: '1. Prologue（序曲）', content: '1815 年，法國。尚萬強因偷麵包餵養姊姊的孩子而被判刑，最終服刑十九年。苦役船上，囚犯被編號、去姓名，象徵人被制度徹底物化。沙威作為獄警登場，他對囚犯毫無同情，認定「犯罪的人永遠是罪犯」，這個信念將貫穿他的一生。' },
+                    { title: '2. Valjean’s Soliloquy / What Have I Done?', content: '尚萬強出獄後獲得假釋，但身分證明讓所有人拒他於門外。只有主教收留他，卻反遭偷竊。當尚萬強被抓回時，主教卻謊稱銀器是送的，還多給他銀燭台。這份毫無條件的仁慈動搖了尚萬強的世界觀——他第一次被當作「人」對待。在激烈的內心掙扎後，他選擇撕毀假釋證明，決定用餘生證明自己值得被寬恕。' },
+                    { title: '3. At the End of the Day', content: '數年後，尚萬強化名成為工廠老闆兼市長。舞台轉為群像：工人、婦女、街頭小販、勞動者唱出日復一日的疲憊。這首歌讓觀眾明白，即使有善良的市長，社會本身仍然在碾壓底層。' },
+                    { title: '4. I Dreamed a Dream', content: '芳汀年輕時愛上一名男子並生下孩子，卻被拋棄，只能將女兒珂賽特寄養在德納第家。如今，她在工廠被揭發未婚生子而遭解雇，生活全面崩潰。這首歌是她對「曾經相信愛與未來」的哀悼，揭示理想如何被現實一寸寸撕碎。' },
+                    { title: '5. Lovely Ladies', content: '失去收入的芳汀一步步被逼賣掉頭髮、牙齒，最後淪為妓女。音樂輕佻，內容卻極端殘酷，刻意製造不適感，諷刺社會對女性的消費與踐踏。' },
+                    { title: '6. Fantine’s Arrest', content: '芳汀被顧客欺辱後反抗，沙威依法將她逮捕。尚萬強出面制止，命沙威放人。這一刻，沙威心中第一次對市長產生懷疑——他不該同情罪犯。' },
+                    { title: '7. Runaway Cart', content: '一輛馬車失控壓住工人，尚萬強在眾目睽睽下徒手抬起車子救人。這不可能的力量讓沙威幾乎確信：眼前的人就是當年的苦役犯尚萬強。' },
+                    { title: '8. Who Am I?', content: '尚萬強得知一名無辜者即將因被誤認成他而受審。若沉默，他能保有權力與地位；若坦白，將失去一切。他選擇在法庭上公開身分，完成從「守法的好市長」到「真正正直之人」的轉變。' },
+                    { title: '9. Fantine’s Death', content: '芳汀病入膏肓，在幻覺中看見未來幸福的珂賽特。尚萬強在她臨終前承諾會找到女兒。芳汀一生的苦難沒有逆轉，只有被理解。' },
+                    { title: '10. The Confrontation', content: '尚萬強與沙威直接對峙。沙威誓言終生追捕他，因為在他的世界裡，「法律一旦破壞，秩序就不存在」。' },
+                    { title: '11. Castle on a Cloud', content: '在德納第家受虐的珂賽特幻想一個沒有痛苦的地方。這首歌象徵孩子如何用想像力自救。' },
+                    { title: '12. Master of the House', content: '德納第夫婦登場，貪婪、狡猾、毫無羞愧。他們代表另一種「活得很好」的方式——靠剝削他人。' },
+                    { title: '13. The Bargain / Waltz of Treachery', content: '尚萬強付錢帶走珂賽特。德納第夫婦不斷加價，將孩子當商品。珂賽特的人生正式被改寫。' },
+                    { title: '14. Look Down', content: '多年後，革命前夕的巴黎。窮人、學生、街童齊唱被壓迫的憤怒。社會不滿已接近臨界點。' },
+                    { title: '15. Robbery / Javert’s Intervention', content: '德納第企圖搶劫尚萬強，沙威出現。命運再次將追逐者與被追逐者拉回同一條線上。' },
+                    { title: '16. Stars', content: '沙威獨自仰望星空，將法律視為神聖秩序。他不是殘忍，而是無法想像世界有灰色地帶。' },
+                    { title: '第二幕 Act II: 17. Eponine’s Errand', content: '德納第的女兒愛潘妮愛上馬呂斯，卻知道他愛的是珂賽特。她仍選擇幫助他，只求靠近。' },
+                    { title: '18. ABC Café / Red and Black', content: '學生革命者策畫起義，理想與死亡交織。馬呂斯被革命吸引，卻因愛情遲疑。' },
+                    { title: '19. Do You Hear the People Sing?', content: '人民之歌響起，革命理想達到高峰。但觀眾已隱約知道，歷史不會站在他們這邊。' },
+                    { title: '20. In My Life', content: '珂賽特第一次真正戀愛，卻感到不安。她的幸福建立在父親的隱瞞之上。' },
+                    { title: '21. A Heart Full of Love', content: '三人同場：戀人沉浸幸福、愛潘妮默默心碎。同一首歌，三種命運。' },
+                    { title: '22. One Day More', content: '革命前夜。所有角色的情感線交會，期待、恐懼、復仇、希望同時爆發。全劇結構與情緒的最高點。' },
+                    { title: '23. On My Own', content: '愛潘妮清楚知道這份愛永遠得不到回應。她不是被拒絕，而是從未被看見。' },
+                    { title: '24. Building the Barricade', content: '街壘築起，理想成為現實。年輕人相信自己能改變世界。' },
+                    { title: '25. Javert’s Arrival', content: '沙威混入革命者，被識破後仍毫不懼怕。他堅信「自己是對的」。' },
+                    { title: '26. Little People', content: '加夫羅什短暫嘲諷權威，象徵底層的反抗。' },
+                    { title: '27. A Little Fall of Rain', content: '愛潘妮中彈，死在馬呂斯懷中。她人生第一次被溫柔地愛著，卻是在最後一刻。' },
+                    { title: '28. Night of Anguish', content: '夜深，革命者等不到支援。理想開始崩解。' },
+                    { title: '29. The First Attack', content: '政府軍進攻，死亡變得真實。' },
+                    { title: '30. Drink With Me', content: '革命者在死亡前互相陪伴。他們不再談理想，只談友情。' },
+                    { title: '31. Bring Him Home', content: '尚萬強祈禱馬呂斯能活下來。這不是革命之歌，而是父愛與慈悲。' },
+                    { title: '32. Dawn of Anguish', content: '天亮，希望已死。' },
+                    { title: '33. The Second Attack / Death of Gavroche', content: '加夫羅什倒下，象徵革命的純真犧牲。' },
+                    { title: '34. The Final Battle', content: '街壘失守，革命徹底失敗。' },
+                    { title: '35. The Sewers / Dog Eats Dog', content: '尚萬強救馬呂斯穿越下水道。德納第在屍體間掠奪，證明人性未曾統一向善。' },
+                    { title: '36. Javert’s Suicide', content: '沙威因被尚萬強放走而信念崩潰。他無法接受「罪犯能選擇善」。' },
+                    { title: '37. Turning', content: '女人們悼念死者。革命結束，生活仍要繼續。' },
+                    { title: '38. Empty Chairs at Empty Tables', content: '馬呂斯活了下來，卻失去一切朋友。倖存本身成為一種痛苦。' },
+                    { title: '39. Every Day', content: '平凡的幸福，是用無數犧牲換來的。' },
+                    { title: '40. Valjean’s Confession', content: '尚萬強坦白過去，放下秘密與責任。' },
+                    { title: '41. Wedding Chorale / Beggars at the Feast', content: '婚禮喜悅與社會荒謬並存。世界沒有因革命而變好，但仍有人獲得幸福。' },
+                    { title: '42. Epilogue / Finale', content: '尚萬強在芳汀與愛潘妮的幻影中離世。全體合唱：即使世界充滿苦難，人仍能選擇成為光。' }
                 ] 
             },
             { id: 'st_pauls', icon: 'fa-solid fa-church', title: '聖保羅大教堂', en: 'St Paul\'s Cathedral', tag: '巴洛克地標', img: 'st_pauls.jpg', intro: '雷恩爵士設計的巴洛克傑作，其巨大的圓頂主宰了倫敦天際線三百年。', details: [{ title: '登頂體驗', content: '挑戰 528 階樓梯到達金迴廊 (Golden Gallery)，可俯瞰倫敦絕美全景。中途的耳語廊 (Whispering Gallery) 擁有神奇的傳聲效果。' }] }
@@ -561,7 +598,7 @@
             { 
                 date: "2/14", day: "週六", fullDate: "2026-02-14",
                 events: [
-                    {time:"06:00", title:"桃園機場 T1", type:"flight", note:"準備起飛"},
+                    {time:"06:00", title:"桃園機場 T1", type:"flight", note:"機場Check-in"},
                     {time:"16:55", title:"Heathrow T3", type:"flight", note:"抵達英國", 
                      transport: {mode: "伊莉莎白線", text: "Heathrow T2/3 → Bond St", detail: "約 35 分鐘，直達，刷信用卡進站"}},
                     {time:"", title:"M&S Food Bond St", type:"shop", note:"超市採買", 
@@ -763,6 +800,19 @@
             document.body.style.overflow = '';
         }
 
+        /* 彩蛋控制函數 */
+        function triggerEasterEgg() {
+            const modal = document.getElementById('easter-egg-modal');
+            modal.classList.remove('hidden-modal');
+            modal.classList.add('visible-modal');
+        }
+
+        function closeEasterEgg() {
+            const modal = document.getElementById('easter-egg-modal');
+            modal.classList.remove('visible-modal');
+            modal.classList.add('hidden-modal');
+        }
+
         let selectedDayIndex = 0;
 
         function renderItinerary() {
@@ -784,8 +834,44 @@
             // 2. Render Content for Selected Day
             const day = itineraryData[selectedDayIndex];
             const contentContainer = document.getElementById('current-day-content');
-            let evs = '';
             
+            // --- 航班資訊動態判斷 (Dynamic Flight Widget) ---
+            let flightWidget = '';
+            if (day.date === '2/14') {
+                // 去程：台北 -> 倫敦
+                flightWidget = `
+                    <div class="bg-white rounded-xl shadow-floating p-4 relative overflow-hidden mb-6 animate-in">
+                        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-british-red to-royal-navy"></div>
+                        <div class="flex justify-between items-center text-center mt-2">
+                            <div><div class="text-2xl font-cinzel font-bold text-royal-navy">TPE</div><div class="text-[10px] text-gray-500">08:40</div></div>
+                            <div class="flex-1 px-2 flex flex-col items-center">
+                                <i class="fa-solid fa-plane text-british-red text-sm mb-1"></i>
+                                <div class="w-full h-px bg-gray-300"></div>
+                                <span class="text-[10px] font-bold text-royal-navy mt-0.5">CI81</span>
+                                <span class="text-[9px] text-gray-400">16h 15m</span>
+                            </div>
+                            <div><div class="text-2xl font-cinzel font-bold text-royal-navy">LHR</div><div class="text-[10px] text-gray-500">16:55</div></div>
+                        </div>
+                    </div>`;
+            } else if (day.date === '2/23') {
+                // 回程：倫敦 -> 台北 (圖示和地點對調)
+                flightWidget = `
+                    <div class="bg-white rounded-xl shadow-floating p-4 relative overflow-hidden mb-6 animate-in">
+                        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-royal-navy to-british-red"></div>
+                        <div class="flex justify-between items-center text-center mt-2">
+                            <div><div class="text-2xl font-cinzel font-bold text-royal-navy">LHR</div><div class="text-[10px] text-gray-500">21:15</div></div>
+                            <div class="flex-1 px-2 flex flex-col items-center">
+                                <i class="fa-solid fa-plane text-royal-navy text-sm mb-1 transform rotate-180"></i>
+                                <div class="w-full h-px bg-gray-300"></div>
+                                <span class="text-[10px] font-bold text-royal-navy mt-0.5">CI82</span>
+                                <span class="text-[9px] text-gray-400">13h 20m (+1)</span>
+                            </div>
+                            <div><div class="text-2xl font-cinzel font-bold text-royal-navy">TPE</div><div class="text-[10px] text-gray-500">18:35</div></div>
+                        </div>
+                    </div>`;
+            }
+
+            let evs = '';
             day.events.forEach(e => {
                 let c = 'text-gray-400', i = 'fa-circle', b = 'border-gray-300';
                 if(e.type==='flight'){c='text-british-red';i='fa-plane';b='border-british-red';}
@@ -831,6 +917,7 @@
             });
 
             contentContainer.innerHTML = `
+                ${flightWidget}
                 <div class="relative pl-3 border-l border-gray-300 ml-2">
                     <div class="mb-4">
                         <h2 class="text-2xl font-serif font-bold text-royal-navy">${day.date} <span class="text-sm font-sans text-antique-gold ml-2">${day.day}</span></h2>
