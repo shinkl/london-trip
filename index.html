@@ -3,1043 +3,207 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="format-detection" content="telephone=no">
-    <meta name="apple-mobile-web-app-title" content="敦好敦滿">
-    <meta name="theme-color" content="#0F172A">
-    <link rel="manifest" href="manifest.json">
-    
-    <link rel="apple-touch-icon" href="icon.png">
-    <link rel="icon" type="image/png" href="icon.png">
-    <title>敦好敦滿 2026</title>
-    
+    <title>倫敦行旅 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Serif+TC:wght@400;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Noto+Serif+TC:wght@400;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: {
-                        'royal-navy': '#0F172A',
-                        'british-red': '#8B0000',
-                        'antique-gold': '#C5A065',
-                        'parchment': '#F9F7F2',
-                        'fog-grey': '#CFD8DC',
-                    },
-                    fontFamily: {
-                        serif: ['"Noto Serif TC"', '"Playfair Display"', 'serif'],
-                        cinzel: ['"Cinzel"', 'serif'],
-                        sans: ['"Lato"', 'sans-serif'],
-                    },
-                    boxShadow: {
-                        'paper': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-                        'floating': '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-                    }
+                    colors: { 'royal-navy': '#0F172A', 'british-red': '#8B0000', 'antique-gold': '#C5A065', 'parchment': '#F9F7F2' },
+                    fontFamily: { serif: ['"Noto Serif TC"', 'serif'], cinzel: ['"Cinzel"', 'serif'], sans: ['"Lato"', 'sans-serif'] }
                 }
             }
         }
     </script>
-
     <style>
-        :root { --app-height: 100%; }
-        body {
-            background-color: #F9F7F2;
-            background-image: radial-gradient(#C5A065 0.5px, transparent 0.5px);
-            background-size: 20px 20px;
-            color: #0F172A;
-            -webkit-tap-highlight-color: transparent;
-            font-family: 'Lato', 'Noto Serif TC', sans-serif;
-            overflow: hidden;
-        }
-        
-        #splash-screen {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background-color: #0F172A; z-index: 9999;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            transition: opacity 0.8s ease-out;
-        }
-
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-in { animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        
-        #main-container::-webkit-scrollbar, .hide-scroll::-webkit-scrollbar { display: none; }
-        #main-container, .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
-
-        .glass-nav {
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border-top: 1px solid rgba(197, 160, 101, 0.3);
-        }
-
-        .tab-content { display: none; opacity: 0; transition: opacity 0.3s ease; height: 100%; }
-        .tab-content.active { display: block; opacity: 1; }
-
-        .btn-press:active { transform: scale(0.98); transition: transform 0.1s; }
-        
+        body { background-color: #F9F7F2; color: #0F172A; font-family: 'Lato', sans-serif; overflow: hidden; height: 100dvh; }
+        .tab-content { display: none; height: calc(100dvh - 160px); overflow-y: auto; }
+        .tab-content.active { display: block; }
+        .glass-nav { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+        .hide-scroll::-webkit-scrollbar { display: none; }
         #detail-modal { transition: opacity 0.3s; }
-        #detail-modal.hidden-modal { pointer-events: none; opacity: 0; }
-        #detail-modal.visible-modal { pointer-events: auto; opacity: 1; }
-        #modal-content { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); transform: translateY(100%); }
-        .visible-modal #modal-content { transform: translateY(0); }
-        
-        /* 彩蛋視窗樣式 */
-        #easter-egg-modal { transition: opacity 0.3s; }
-        #easter-egg-modal.hidden-modal { pointer-events: none; opacity: 0; }
-        #easter-egg-modal.visible-modal { pointer-events: auto; opacity: 1; }
-
-        .rich-text p { margin-bottom: 1em; line-height: 1.6; }
-        .rich-text strong { color: #0F172A; font-weight: 700; }
-        .rich-text ul { list-style-type: disc; padding-left: 1.5em; margin-bottom: 1em; }
-        .rich-text li { margin-bottom: 0.5em; }
-
-        /* 交通連接線樣式 */
-        .transport-line {
-            border-left: 2px dotted #C5A065;
-            margin-left: 11px;
-            padding-left: 20px;
-            padding-bottom: 15px;
-            padding-top: 5px;
-            position: relative;
-        }
-        
-        .info-card h4 { color: #8B0000; font-weight: bold; margin-top: 0.5rem; margin-bottom: 0.25rem; font-size: 0.9rem; }
-        .info-card ul { list-style-type: disc; padding-left: 1.2rem; margin-bottom: 0.5rem; font-size: 0.85rem; color: #334155; }
-        .info-card li { margin-bottom: 0.25rem; }
-
-        .icon-img { width: 100%; height: 100%; object-fit: contain; }
-
-        /* Weather Scroll */
-        .weather-scroll {
-            display: flex;
-            overflow-x: auto;
-            gap: 1rem;
-            padding-bottom: 0.5rem;
-        }
-        .weather-scroll::-webkit-scrollbar { display: none; }
-
-        /* Sidebar Styling */
-        .date-btn.active {
-            background-color: #0F172A;
-            color: #F9F7F2;
-            border-left: 4px solid #C5A065;
-        }
-        .date-btn.active .day-label { color: #C5A065; }
-        .date-btn {
-            transition: all 0.2s;
-            border-left: 4px solid transparent;
-        }
+        #detail-modal.hidden { opacity: 0; pointer-events: none; }
+        #detail-modal.visible { opacity: 1; pointer-events: auto; }
+        .weather-card { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); }
     </style>
 </head>
-<body class="flex flex-col h-[100dvh]">
+<body class="flex flex-col">
 
-    <div id="splash-screen">
-        <div class="text-center">
-            <i class="fa-solid fa-crown text-antique-gold text-5xl mb-4 animate-bounce"></i>
-            <h1 class="font-cinzel text-3xl text-white tracking-[0.2em] border-b border-antique-gold pb-2">LONDON</h1>
-            <p class="text-antique-gold font-serif italic mt-2 text-lg">2026 英倫行旅</p>
-        </div>
-    </div>
-
-    <div id="detail-modal" class="fixed inset-0 z-[100] hidden-modal flex items-end justify-center">
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeModal()"></div>
-        <div id="modal-content" class="relative w-full max-w-md bg-parchment rounded-t-3xl shadow-2xl h-[85vh] flex flex-col overflow-hidden">
-            <div class="w-full h-8 bg-royal-navy flex justify-center items-center shrink-0 z-10 relative" onclick="closeModal()">
-                <div class="w-12 h-1 bg-white/30 rounded-full"></div>
-            </div>
-            
-            <div class="overflow-y-auto hide-scroll flex-1 pb-10" id="modal-body">
-                <div id="modal-header-bg" class="h-40 w-full bg-royal-navy relative flex items-center px-8 bg-cover bg-center transition-all duration-300">
-                    <div class="absolute inset-0 bg-gradient-to-r from-royal-navy/90 to-royal-navy/40 z-0"></div>
-                    <div class="absolute right-6 top-6 z-0" id="modal-icon-container"></div>
-                    <div class="relative z-10 text-white w-full">
-                        <span id="modal-tag" class="text-[10px] font-bold tracking-widest uppercase bg-antique-gold text-royal-navy px-2 py-1 rounded mb-2 inline-block">Category</span>
-                        <h2 id="modal-title" class="text-3xl font-serif font-bold leading-tight drop-shadow-md">Title</h2>
-                        <p id="modal-en" class="text-sm text-antique-gold italic mt-1 font-serif">English Name</p>
-                    </div>
-                </div>
-
-                <div class="px-6 py-8 space-y-8 bg-parchment">
-                    <div class="rich-text text-base text-royal-navy font-serif leading-relaxed first-letter:text-3xl first-letter:font-bold first-letter:text-antique-gold first-letter:mr-1" id="modal-intro">Intro...</div>
-                    <div id="modal-sections" class="space-y-6"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="easter-egg-modal" class="fixed inset-0 z-[110] hidden-modal flex items-center justify-center p-6">
-        <div class="absolute inset-0 bg-black/80 backdrop-blur-md" onclick="closeEasterEgg()"></div>
-        <div class="bg-white rounded-2xl p-6 relative w-full max-w-sm text-center shadow-2xl transform scale-100 transition-transform">
-            <button onclick="closeEasterEgg()" class="absolute top-2 right-2 w-8 h-8 flex items-center justify-center text-gray-400 hover:text-royal-navy">
-                <i class="fa-solid fa-xmark text-xl"></i>
-            </button>
-            
-            <div class="mb-4 mt-2">
-                <img src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?q=80&w=600&auto=format&fit=crop" class="w-full h-48 object-cover rounded-xl shadow-lg mb-4" alt="Secret">
-                
-                <h3 class="font-cinzel text-2xl font-bold text-royal-navy mb-2">BON VOYAGE!</h3>
-                <p class="font-serif text-gray-600 italic leading-relaxed">
-                    願你在倫敦的每一天<br>
-                    都如電影般精彩。<br>
-                    Enjoy every moment.
-                </p>
-            </div>
-            <button onclick="closeEasterEgg()" class="bg-antique-gold text-royal-navy font-bold py-2 px-6 rounded-full text-sm mt-2 btn-press">Close</button>
-        </div>
-    </div>
-
-    <header class="bg-royal-navy text-white pt-safe-top pb-4 px-6 shadow-xl z-20 shrink-0 relative overflow-hidden h-[90px] flex items-end">
-        <div class="absolute top-0 right-0 opacity-10 transform translate-x-10 -translate-y-5 cursor-pointer active:opacity-20 transition-opacity" onclick="triggerEasterEgg()">
-            <i class="fa-solid fa-union-jack text-9xl"></i>
-        </div>
-        <div class="flex justify-between items-end w-full relative z-10">
+    <header class="bg-royal-navy text-white pt-10 pb-4 px-6 shrink-0 shadow-lg">
+        <div class="flex justify-between items-end">
             <div>
-                <p class="text-antique-gold text-xs font-bold uppercase tracking-widest mb-1">Travel Itinerary</p>
-                <h1 class="font-serif text-2xl font-bold tracking-wide">英國倫敦</h1>
+                <h1 class="font-cinzel text-2xl tracking-widest text-antique-gold">LONDON</h1>
+                <p class="text-xs opacity-70">2026 February Travel Plan</p>
             </div>
-            <div class="text-right">
-                <span class="block text-3xl font-cinzel text-white leading-none">Feb</span>
-                <span class="block text-sm text-antique-gold">14 - 23</span>
-            </div>
+            <i class="fa-solid fa-crown text-antique-gold text-xl"></i>
         </div>
     </header>
 
-    <main id="main-container" class="flex-1 overflow-hidden bg-parchment pb-[65px] relative">
+    <main id="main-container" class="flex-1 hide-scroll">
         
-        <div id="plan" class="tab-content active h-full">
-            <div class="flex h-full">
-                <div id="date-sidebar" class="w-[85px] bg-white border-r border-gray-200 overflow-y-auto hide-scroll pb-24 shrink-0 shadow-inner z-10">
-                    </div>
-
-                <div id="day-details-container" class="flex-1 overflow-y-auto hide-scroll pb-24 bg-parchment p-4 relative">
-                    <div id="current-day-content" class="animate-in">
-                        </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="guide" class="tab-content px-4 py-6 overflow-y-auto hide-scroll">
-            <h2 class="font-serif text-2xl text-center text-royal-navy mb-8 relative font-bold">
-                <span class="bg-parchment px-4 relative z-10">深度導覽</span>
-                <div class="absolute top-1/2 left-0 w-full h-px bg-antique-gold/30 -z-0"></div>
-            </h2>
-            <div class="grid grid-cols-1 gap-4" id="guide-list"></div>
-        </div>
-
-        <div id="wallet" class="tab-content px-4 py-6 overflow-y-auto hide-scroll">
-            <div class="bg-royal-navy rounded-2xl p-6 shadow-floating text-white relative overflow-hidden mb-6">
-                <div class="absolute -right-10 -top-10 w-32 h-32 bg-antique-gold rounded-full opacity-10"></div>
-                <h3 class="font-serif text-lg mb-6 flex items-center"><i class="fa-solid fa-sterling-sign mr-2 text-antique-gold"></i> 匯率換算</h3>
-                <div class="space-y-4">
+        <div id="plan" class="tab-content active px-4 py-6 space-y-4">
+            <div class="bg-white rounded-xl shadow-md p-4 border-l-4 border-antique-gold" onclick="window.open('https://www.google.com/maps/search/?api=1&query=395+Oxford+St+London', '_blank')">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-hotel text-antique-gold"></i>
                     <div>
-                        <label class="text-xs text-gray-400 block mb-1">匯率設定 (GBP -> TWD)</label>
-                        <div class="flex items-center bg-white/10 rounded-lg px-3 border border-white/10">
-                            <span class="text-antique-gold font-bold mr-2">£1 =</span>
-                            <input type="number" id="exchange-rate" value="41.5" class="bg-transparent w-full py-3 text-white focus:outline-none font-mono text-lg" onchange="saveRate()">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="text-xs text-gray-400 block mb-1">消費金額 (£)</label>
-                        <input type="text" id="calc-input" placeholder="例如: 12.5 + 5" class="w-full bg-white/10 border border-white/10 rounded-lg py-3 px-3 text-white text-xl font-mono focus:outline-none focus:border-antique-gold transition placeholder-gray-600">
-                    </div>
-                    <button onclick="calculate()" class="w-full bg-antique-gold text-royal-navy font-bold py-3 rounded-lg shadow-lg btn-press mt-2">計算並換算</button>
-                    <div class="pt-4 border-t border-white/10 flex justify-between items-end">
-                        <span class="text-xs text-gray-400">約合台幣</span>
-                        <span class="text-3xl font-serif font-bold text-white" id="result-twd">NT$ 0</span>
+                        <h4 class="font-bold text-sm">倫敦住宿 (Oxford St)</h4>
+                        <p class="text-[10px] text-gray-500">395 Oxford St, London W1C 2JX</p>
                     </div>
                 </div>
             </div>
-            <a href="https://liff.line.me/1655320992-Y8GowEpw/g/b1WMKQAKDaSBYNmzATGWNm" target="_blank" class="block bg-white rounded-xl p-4 shadow-paper btn-press border-l-4 border-green-600 flex justify-between items-center">
-                <div class="flex items-center"><div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3"><i class="fa-brands fa-line text-green-600 text-xl"></i></div><div><h4 class="font-bold text-royal-navy">LINE 分帳群組</h4><p class="text-xs text-gray-500">點擊開啟記帳</p></div></div><i class="fa-solid fa-chevron-right text-gray-300"></i>
-            </a>
+            <div id="itinerary-list" class="space-y-6"></div>
         </div>
 
-        <div id="lists" class="tab-content px-4 py-6 overflow-y-auto hide-scroll">
-            <div class="bg-white rounded-xl shadow-floating overflow-hidden mb-6">
-                <div class="bg-royal-navy px-4 py-3 flex justify-between items-center">
-                    <h3 class="font-serif text-white font-bold"><i class="fa-solid fa-clipboard-check mr-2 text-antique-gold"></i>準備清單</h3>
-                    <span class="text-xs text-gray-400" id="progress-text">0/0</span>
-                </div>
-                <div class="flex p-2 border-b border-gray-100 bg-gray-50">
-                    <input type="text" id="new-item-input" placeholder="新增項目..." class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-l focus:outline-none focus:border-royal-navy">
-                    <button onclick="addItem()" class="bg-royal-navy text-white px-4 py-2 rounded-r text-sm font-bold"><i class="fa-solid fa-plus"></i></button>
-                </div>
-                <div class="p-2" id="checklist-container"></div>
-            </div>
+        <div id="guide" class="tab-content px-4 py-6">
+            <div class="grid grid-cols-1 gap-6" id="guide-list"></div>
+        </div>
 
-            <div class="space-y-5 pb-8">
-                <div class="bg-white rounded-xl shadow-paper overflow-hidden info-card">
-                    <div class="bg-blue-900/10 px-4 py-2 border-l-4 border-blue-900">
-                        <h3 class="font-serif text-blue-900 font-bold text-sm"><i class="fa-solid fa-plane-up mr-2"></i>長途班機建議攜帶</h3>
-                    </div>
-                    <div class="p-4 text-sm text-gray-700 leading-relaxed">
-                        <ol class="list-decimal pl-4 space-y-1">
-                            <li><strong>壓力襪</strong>：減少血栓及腿部浮腫。</li>
-                            <li><strong>拖鞋</strong>：機上腳會腫，穿拖鞋較舒適方便。</li>
-                            <li><strong>頸枕</strong>：長途睡眠必備。</li>
-                            <li><strong>護唇膏/保濕</strong>：機上乾燥，容器不可大於100ml。</li>
-                            <li><strong>耳塞/眼罩/抗噪耳機</strong>：助眠三寶。</li>
-                            <li><strong>牙刷、牙膏</strong>：保持口氣清新。</li>
-                            <li><strong>預載娛樂</strong>：機上WIFI通常僅限文字訊息，建議提前下載小說/影片/音樂。</li>
-                            <li><strong>衣著建議</strong>：穿著舒適寬鬆，上機前可提前拉伸。</li>
-                        </ol>
-                    </div>
+        <div id="lists" class="tab-content px-4 py-6">
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="bg-royal-navy p-4 flex justify-between items-center">
+                    <h3 class="text-white font-bold"><i class="fa-solid fa-list-check mr-2"></i>行李清單</h3>
+                    <span id="list-count" class="text-antique-gold text-xs font-mono">0/0</span>
                 </div>
-
-                <div class="bg-white rounded-xl shadow-paper overflow-hidden info-card">
-                    <div class="bg-british-red/10 px-4 py-2 border-l-4 border-british-red">
-                        <h3 class="font-serif text-british-red font-bold text-sm"><i class="fa-solid fa-suitcase-rolling mr-2"></i>託運及隨身行李注意事項</h3>
+                <div class="p-4 space-y-3">
+                    <div class="flex gap-2 mb-4">
+                        <input type="text" id="new-item-input" placeholder="新增物品..." class="flex-1 bg-gray-100 border-none rounded-lg px-3 py-2 text-sm focus:ring-1 focus:ring-antique-gold outline-none">
+                        <button onclick="addItem()" class="bg-royal-navy text-white px-4 py-2 rounded-lg text-sm"><i class="fa-solid fa-plus"></i></button>
                     </div>
-                    <div class="p-4 space-y-4">
-                        <div>
-                            <h4 class="flex items-center"><i class="fa-solid fa-briefcase text-gray-400 mr-2 text-xs"></i>隨身行李</h4>
-                            <ul>
-                                <li>貴重物品、行動電源、鋰電池 <strong>必須隨身攜帶</strong> (不可託運)。</li>
-                                <li><strong>液體/膠狀限制</strong>：單瓶 < 100ml，須集中放入1公升透明密封袋 (每人限1袋)。超過將被沒收。</li>
-                                <li>藥品/嬰兒食品可依規定攜帶 (備證明)。</li>
-                                <li><span class="text-red-600">禁止</span>：刀剪尖銳物、防身噴霧、危險物品。</li>
-                            </ul>
-                        </div>
-                        <div class="border-t border-gray-100 pt-3">
-                            <h4 class="flex items-center"><i class="fa-solid fa-cart-flatbed-suitcase text-gray-400 mr-2 text-xs"></i>託運行李</h4>
-                            <ul>
-                                <li>單件不可超過 32kg (尺寸依航司規定)。</li>
-                                <li><span class="text-red-600">禁止</span>：易燃、爆裂及危險物品。</li>
-                            </ul>
-                        </div>
-                        <div class="border-t border-gray-100 pt-3">
-                            <h4 class="flex items-center"><i class="fa-solid fa-gavel text-gray-400 mr-2 text-xs"></i>英國入境與海關</h4>
-                            <ul>
-                                <li><strong>食品禁令</strong>：禁止攜帶肉類、乳製品、蜂蜜等。</li>
-                                <li><strong>免稅額</strong>：一般個人物品上限 £390；酒菸有嚴格上限。</li>
-                                <li>超量或受限物品請走 <span class="text-red-600 font-bold">紅色通道</span> 申報。</li>
-                            </ul>
-                        </div>
-                    </div>
+                    <div id="editable-list" class="space-y-2"></div>
                 </div>
             </div>
         </div>
 
-        <div id="info" class="tab-content px-4 py-6 overflow-y-auto hide-scroll">
-            
-            <div class="bg-gradient-to-br from-blue-500 to-blue-700 text-white rounded-xl p-5 shadow-floating relative overflow-hidden" id="weather-widget">
-                <div class="absolute right-[-20px] top-[-20px] opacity-20"><i class="fa-solid fa-cloud text-9xl"></i></div>
-                
-                <div id="weather-content" class="relative z-10">
-                    <div class="flex justify-between items-start mb-2">
-                        <div>
-                            <h3 class="font-serif font-bold text-lg"><i class="fa-solid fa-location-dot mr-1"></i> 倫敦 London</h3>
-                            <p class="text-xs opacity-90" id="weather-current-desc">載入中...</p>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-4xl font-bold block" id="weather-current-temp">--°</span>
-                        </div>
-                    </div>
-                    
-                    <div class="w-full h-px bg-white/20 mb-3"></div>
-                    
-                    <div class="mb-3">
-                        <p class="text-[10px] uppercase font-bold tracking-wider mb-2 opacity-80">24小時預報</p>
-                        <div class="weather-scroll" id="weather-forecast-list">
-                            <div class="text-center min-w-[50px] animate-pulse">
-                                <div class="text-[10px]">--:--</div>
-                                <i class="fa-solid fa-spinner fa-spin my-1"></i>
-                                <div class="text-xs font-bold">--°</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="text-[10px] opacity-60 text-right">
-                        Data by OpenWeather
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-gradient-to-br from-red-600 to-red-800 text-white rounded-xl p-4 shadow-floating flex items-center justify-between">
-                <div class="flex items-center">
-                    <i class="fa-solid fa-truck-medical text-3xl mr-4 opacity-80"></i>
+        <div id="info" class="tab-content px-4 py-6 space-y-6">
+            <div class="weather-card rounded-2xl p-5 text-white shadow-xl">
+                <div class="flex justify-between items-center">
                     <div>
-                        <span class="font-serif font-bold block">緊急求助</span>
-                        <span class="text-xs opacity-90">警察 / 救護車 / 消防</span>
+                        <h3 class="text-lg font-bold">倫敦即時天氣</h3>
+                        <p class="text-xs text-antique-gold" id="weather-desc">正在讀取...</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-4xl font-light" id="weather-temp">--°</span>
                     </div>
                 </div>
-                <span class="text-2xl font-mono font-bold">999</span>
             </div>
 
-            <div class="bg-white rounded-xl shadow-floating overflow-hidden">
-                <div class="bg-royal-navy px-4 py-3 border-b border-gray-100">
-                    <h3 class="font-serif text-white font-bold"><i class="fa-solid fa-building-flag mr-2 text-antique-gold"></i>駐英國台北代表處</h3>
-                </div>
-                <div class="p-4 space-y-3 text-sm text-royal-navy">
-                    <div class="flex items-start">
-                        <i class="fa-solid fa-phone w-6 text-center text-gray-400 mt-1"></i>
-                        <div>
-                            <span class="block font-bold text-xs text-gray-500">電話</span>
-                            <a href="tel:+442078812650" class="text-blue-700 font-mono">(44) 20-7881-2650</a>
-                        </div>
+            <div class="bg-white rounded-xl shadow-md p-5 border-t-4 border-british-red">
+                <h3 class="font-bold text-royal-navy mb-4 flex items-center">
+                    <i class="fa-solid fa-building-columns mr-2 text-british-red"></i>駐英國台北代表處
+                </h3>
+                <div class="space-y-4 text-sm">
+                    <div class="flex items-start gap-3">
+                        <i class="fa-solid fa-phone mt-1 text-gray-400"></i>
+                        <a href="tel:+442078812650" class="text-blue-600 font-mono">(44) 20-7881-2650</a>
                     </div>
-                    <div class="flex items-start">
-                        <i class="fa-solid fa-fax w-6 text-center text-gray-400 mt-1"></i>
-                        <div>
-                            <span class="block font-bold text-xs text-gray-500">傳真</span>
-                            <span class="font-mono">(44) 20-7730-3139</span>
-                        </div>
+                    <div class="flex items-start gap-3">
+                        <i class="fa-solid fa-map-location-dot mt-1 text-gray-400"></i>
+                        <span onclick="window.open('https://www.google.com/maps/search/?api=1&query=46-48+Grosvenor+Gardens+London', '_blank')">46-48 Grosvenor Gardens, London SW1W 0EB</span>
                     </div>
-                    <div class="flex items-start">
-                        <i class="fa-solid fa-map-location-dot w-6 text-center text-gray-400 mt-1"></i>
-                        <div>
-                            <span class="block font-bold text-xs text-gray-500">地址</span>
-                            <span>46-48 Grosvenor Gardens, London SW1W 0EB</span>
-                            <a href="https://www.google.com/maps/search/?api=1&query=Taipei+Representative+Office+in+the+UK" target="_blank" class="text-xs bg-gray-100 px-2 py-0.5 rounded ml-1 text-gray-600"><i class="fa-solid fa-location-arrow"></i> 導航</a>
-                        </div>
+                    <div class="flex items-start gap-3">
+                        <i class="fa-solid fa-clock mt-1 text-gray-400"></i>
+                        <span>週一至週五 09:00 - 17:00</span>
                     </div>
-                    <div class="flex items-start">
-                        <i class="fa-solid fa-clock w-6 text-center text-gray-400 mt-1"></i>
-                        <div>
-                            <span class="block font-bold text-xs text-gray-500">服務時間</span>
-                            <span>週一至週五 09:00 - 17:00</span>
-                        </div>
+                    <div class="flex items-start gap-3">
+                        <i class="fa-solid fa-envelope mt-1 text-gray-400"></i>
+                        <a href="mailto:gbr@mofa.gov.tw" class="text-blue-600">gbr@mofa.gov.tw</a>
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <nav class="glass-nav fixed bottom-0 w-full pb-safe z-50 text-gray-400">
+    <div id="detail-modal" class="fixed inset-0 z-[100] hidden flex items-end">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeModal()"></div>
+        <div class="bg-parchment w-full h-[85vh] rounded-t-3xl relative z-10 flex flex-col overflow-hidden shadow-2xl">
+            <div id="modal-img" class="h-60 w-full bg-cover bg-center shrink-0"></div>
+            <div class="p-6 overflow-y-auto flex-1">
+                <h2 id="modal-title" class="text-2xl font-serif font-bold mb-2"></h2>
+                <div id="modal-content" class="text-sm leading-relaxed text-gray-700 space-y-4"></div>
+            </div>
+            <button onclick="closeModal()" class="absolute top-4 right-4 bg-black/30 text-white w-8 h-8 rounded-full"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+    </div>
+
+    <nav class="glass-nav fixed bottom-0 w-full pb-8 z-50">
         <div class="flex justify-around items-center h-16">
-            <button onclick="switchTab('plan')" class="nav-item active flex-1 flex flex-col items-center justify-center h-full btn-press group" id="nav-plan"><i class="fa-solid fa-compass text-xl mb-1 group-[.active]:text-antique-gold"></i><span class="text-[10px] tracking-widest font-bold group-[.active]:text-white">行程</span></button>
-            <button onclick="switchTab('guide')" class="nav-item flex-1 flex flex-col items-center justify-center h-full btn-press group" id="nav-guide"><i class="fa-solid fa-book-open text-xl mb-1 group-[.active]:text-antique-gold"></i><span class="text-[10px] tracking-widest font-bold group-[.active]:text-white">導覽</span></button>
-            <button onclick="switchTab('wallet')" class="nav-item flex-1 flex flex-col items-center justify-center h-full btn-press group" id="nav-wallet"><i class="fa-solid fa-wallet text-xl mb-1 group-[.active]:text-antique-gold"></i><span class="text-[10px] tracking-widest font-bold group-[.active]:text-white">錢包</span></button>
-            <button onclick="switchTab('lists')" class="nav-item flex-1 flex flex-col items-center justify-center h-full btn-press group" id="nav-lists"><i class="fa-solid fa-list-check text-xl mb-1 group-[.active]:text-antique-gold"></i><span class="text-[10px] tracking-widest font-bold group-[.active]:text-white">清單</span></button>
-            <button onclick="switchTab('info')" class="nav-item flex-1 flex flex-col items-center justify-center h-full btn-press group" id="nav-info"><i class="fa-solid fa-info text-xl mb-1 group-[.active]:text-antique-gold"></i><span class="text-[10px] tracking-widest font-bold group-[.active]:text-white">資訊</span></button>
+            <button onclick="switchTab('plan')" class="nav-btn text-antique-gold flex flex-col items-center flex-1"><i class="fa-solid fa-calendar-day"></i><span class="text-[10px] mt-1">行程</span></button>
+            <button onclick="switchTab('guide')" class="nav-btn text-gray-500 flex flex-col items-center flex-1"><i class="fa-solid fa-map-location-dot"></i><span class="text-[10px] mt-1">導覽</span></button>
+            <button onclick="switchTab('lists')" class="nav-btn text-gray-500 flex flex-col items-center flex-1"><i class="fa-solid fa-clipboard-list"></i><span class="text-[10px] mt-1">清單</span></button>
+            <button onclick="switchTab('info')" class="nav-btn text-gray-500 flex flex-col items-center flex-1"><i class="fa-solid fa-circle-info"></i><span class="text-[10px] mt-1">資訊</span></button>
         </div>
     </nav>
 
     <script>
-        // PWA Service Worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./service-worker.js').catch(err => console.log('SW failed'));
-            });
-        }
-
-        // --- Weather API Integration ---
-        async function fetchWeather() {
-            const API_KEY = 'a40544916856b68216a0c47e3e27a567';
-            if(!API_KEY) return;
-
-            try {
-                // Fetch 5-day/3-hour forecast
-                const response = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=London,uk&units=metric&lang=zh_tw&appid=${API_KEY}`);
-                const data = await response.json();
-
-                if (data.cod !== "200") throw new Error('API Error');
-
-                // 1. Current Weather (Approximate from first list item)
-                const current = data.list[0];
-                document.getElementById('weather-current-temp').innerHTML = `${Math.round(current.main.temp)}<span class="text-xl align-top">°C</span>`;
-                document.getElementById('weather-current-desc').innerText = current.weather[0].description;
-
-                // 2. 24-Hour Forecast (Next 8 items x 3 hours = 24h)
-                const forecastList = document.getElementById('weather-forecast-list');
-                forecastList.innerHTML = '';
-                
-                // Take first 9 items to cover 24h+
-                const next24h = data.list.slice(0, 9);
-                
-                next24h.forEach(item => {
-                    const date = new Date(item.dt * 1000);
-                    const hours = date.getHours().toString().padStart(2, '0');
-                    const iconCode = item.weather[0].icon;
-                    const temp = Math.round(item.main.temp);
-                    
-                    const el = document.createElement('div');
-                    el.className = 'text-center min-w-[50px] flex flex-col items-center';
-                    el.innerHTML = `
-                        <div class="text-[10px] opacity-80 mb-1">${hours}:00</div>
-                        <img src="https://openweathermap.org/img/wn/${iconCode}.png" class="w-8 h-8 -my-1" alt="icon">
-                        <div class="text-xs font-bold mt-1">${temp}°</div>
-                    `;
-                    forecastList.appendChild(el);
-                });
-
-            } catch (error) {
-                console.error('Weather Fetch Error:', error);
-                document.getElementById('weather-current-desc').innerText = '暫無法取得天氣';
-            }
-        }
-
-        // --- Guide Data (Updated) ---
+        // 導覽資料
         const guideData = [
-            { id: 'tower_london', icon: 'fa-solid fa-chess-rook', title: '倫敦塔', en: 'Tower of London', tag: '世界遺產', img: 'tower.jpg', intro: '這座矗立在泰晤士河畔近千年的堡壘，見證了英國最黑暗與榮耀的歷史。它曾是皇宮、軍火庫、鑄幣廠，也是令人聞風喪膽的國家監獄與刑場。', details: [{ title: '白塔 (White Tower)', content: '由征服者威廉於 1078 年下令建造，是諾曼軍事建築的典範。現在內部展示著歷代國王的豪華盔甲，包括亨利八世那套著名的巨大盔甲。' }, { title: '皇冠珠寶 (Crown Jewels)', content: '絕對必看！位於滑鐵盧兵營內，展示著仍在使用的帝國皇冠（鑲有 2868 顆鑽石）。注意尋找權杖上的「非洲之星 I」（530克拉）以及太后皇冠上的「光之山」鑽石。' }, { title: '渡鴉傳說', content: '傳說如果塔裡的六隻渡鴉飛走，王國就會崩塌。因此這裡有專門的「渡鴉官」照料牠們，且牠們的單側翅膀羽毛稍作修剪以防飛離。' }, { title: '血腥歷史', content: '這裡曾處決過三位英格蘭王后，包括安妮·博林。綠塔 (Tower Green) 遺址設有紀念碑，是曾經的高貴囚犯被斬首之地。' }] },
-            { id: 'borough_market', icon: 'fa-solid fa-utensils', title: '波羅市場', en: 'Borough Market', tag: '美食聖地', img: 'market.jpg', intro: '倫敦最古老的食品市場，位於鐵路高架橋下的獨特工業風格。這裡是全球老饕的必訪之地，匯集了英國最棒的農產品與街頭小吃。', details: [{ title: '必吃推薦', content: '<ul><li><strong>Richard Haward\'s Oysters</strong>：新鮮便宜的生蠔，搭配紅酒醋與塔巴斯科辣椒醬。</li><li><strong>Monmouth Coffee</strong>：倫敦傳奇咖啡，手沖與拿鐵都極具水準。</li><li><strong>Bread Ahead</strong>：著名的爆漿甜甜圈，香草與焦糖口味最受歡迎。</li><li><strong>西班牙燉飯</strong>：現煮的大鍋海鮮燉飯，香氣四溢。</li></ul>' }, { title: '哈利波特取景', content: '市場旁的鐵路橋下是《哈利波特：阿茲卡班的逃犯》中，騎士公車停靠「破釜酒吧」的入口拍攝地。' }] },
-            { id: 'westminster', icon: 'fa-solid fa-crown', title: '西敏寺', en: 'Westminster Abbey', tag: '皇室教堂', img: 'westminster.jpg', intro: '英國皇室的御用教堂，宏偉的哥德式建築傑作。自 1066 年以來，幾乎所有英國君主的加冕典禮都在此舉行。', details: [{ title: '重要典禮', content: '威廉王子與凱特王妃的婚禮、伊莉莎白二世女王的國葬皆在此舉行。' }, { title: '詩人角 (Poets\' Corner)', content: '位於南耳堂，埋葬或紀念了許多偉大的文學家，包括喬叟、狄更斯、哈代，以及莎士比亞的紀念碑。' }, { title: '加冕椅', content: '那張古老且看似破舊的木椅，是自 1308 年以來每位君主加冕時必須坐的椅子，極具歷史價值。' }] },
-            { 
-                id: 'dungeon', 
-                icon: 'fa-solid fa-skull', 
-                title: '倫敦地牢', 
-                en: 'The London Dungeon', 
-                tag: '驚悚體驗', 
-                img: 'dungeon.jpg', 
-                intro: '結合歷史、恐怖與黑色幽默的沈浸式劇場。透過真人演員與特效，重現倫敦歷史上最黑暗的時期。', 
-                details: [
-                    { title: '1. 地牢入口 / The Descent（小丑迎賓）', content: '遊客進入地牢的第一刻，就會看到穿著中世服裝的小丑（Jester／弄臣）迎接。他會用幽默、挑釁的語氣與遊客互動，講笑話、調侃你是否能活過旅程，甚至挑選觀眾上台，為整個體驗營造黑色幽默與恐怖交織的氣氛。樓梯和斜坡設計配合煙霧與陰暗燈光，讓人仿佛真的進入倫敦黑暗深處。' },
-                    { title: '2. Conspirators Walk（陰謀者小徑）', content: '走進狹窄的石板巷道，遊客會看到黑袍角色密談，他們低聲討論著「火藥陰謀」炸毀國會的計畫。巷道中布滿燭光閃爍的壁燈和陰影，演員會時不時盯著遊客，讓人彷彿成為陰謀的一部分，感受到 1605 年倫敦宗教迫害和政治緊張的壓迫氣氛。' },
-                    { title: '3. Gunpowder Plot（火藥陰謀揭露）', content: '在這個場景，蓋伊·福克斯陰謀被揭發，四周堆滿火藥桶，煙霧和低沉音效營造緊張感。演員會扮演官員追捕福克斯，逼近遊客，讓你感受到即將爆炸的威脅與法律制裁的壓迫感，就像置身陰謀現場。' },
-                    { title: '4. Torture Chamber（酷刑室）', content: '這裡展示中世倫敦常用的審訊與刑具，如鐵椅、木樁和手銬。演員會模擬審訊過程，讓遊客親眼看到囚犯被審問的恐懼與痛苦，燈光聚焦刑具，聲效模擬尖叫，讓整個房間充滿壓迫感，教育與恐怖感並存。' },
-                    { title: '5. Pest House（瘟疫屋）', content: '遊客走進一間霧氣瀰漫、寒意十足的屋子，模擬 1665 年黑死病肆虐的場景。地板上放置稻草床，演員扮演病患呻吟或被隔離的居民，空氣中彷彿彌漫死亡的氣息，讓人感受到瘟疫帶來的恐慌與無力。' },
-                    { title: '6. Rat Run（鼠巷）', content: '沿著狹窄的巷道前進，周圍布滿垃圾、老鼠聲和陰影。遊客必須小心通過，燈光昏暗，演員偶爾從角落出現或用聲音嚇人，重現中世倫敦貧民區的陰暗與危險，象徵疾病與犯罪共存的街道。' },
-                    { title: '7. Mitre Square / Whitechapel Labyrinth（白教堂迷宮）', content: '這裡重現開膛手傑克謀殺案的街道迷宮。遊客穿越蜿蜒小巷，演員扮演恐慌的居民與調查警察，燈光忽明忽暗，聲效模擬雨夜腳步與尖叫，使人彷彿置身維多利亞時代東倫敦的恐怖事件現場。' },
-                    { title: '8. Jack the Ripper（十鈴酒吧）', content: '在酒吧場景中，遊客聽到酒吧老闆講述傑克犯罪故事，演員會穿梭其中與觀眾互動，仿佛故事正在發生。煙霧、低音音效與昏暗燈光讓遊客感受當時居民面對連環殺手的不安與恐懼。' },
-                    { title: '9. The Courtroom（古代法庭）', content: '遊客進入模擬法庭，看到法官、陪審團與被告的互動。演員會重現審判過程，包括控訴、辯護與判決，燈光集中在被告身上，觀眾感受到中世倫敦司法的嚴酷與不公。' },
-                    { title: '10. Escape from Newgate Prison（逃出紐蓋特監獄）', content: '場景模擬囚犯逃脫過程，遊客跟隨故事線通過鐵籠、暗門和鐵鏈，聲效與燈光營造壓迫感。演員扮演獄卒或囚犯，讓遊客感受緊張、恐懼與逃亡刺激。' },
-                    { title: '11. Mrs Lovett’s Pie Shop（洛維特夫人派店）', content: '黑色幽默的派店場景，演員扮演洛維特夫人講述「肉派的秘密」，結合恐怖與幽默，讓遊客既感到毛骨悚然又忍俊不禁，了解都市傳說中的驚悚元素。' },
-                    { title: '12. Sweeney Todd（理髮師陶德）', content: '重現理髮師陶德的割喉理髮店，燈光陰暗、聲效逼真，遊客仿佛置身恐怖傳說之中。演員互動與小型特效增加現場感，呈現民間恐怖故事如何在歷史中流傳。' },
-                    { title: '13. Drop Dead: Drop Ride（驚悚落下體驗）', content: '這是刺激的落下設施，遊客在黑暗中快速下降，多層樓的失重感象徵被處決時的恐懼，結合聲音和光效，讓整個旅程達到驚悚高潮。' },
-                    { title: '14. Tyrant Boat / Henry’s Wrath（暴君之河）', content: '水上旅程模擬亨利八世暴政，遊客乘船穿過暗河，演員扮演執行暴政的士兵與被審判者，沿途霧氣、燈光與聲音營造恐懼氛圍，使遊客感受到權力與暴力的威壓。' },
-                    { title: '15. The Tavern（維多利亞酒館）', content: '旅程收尾的酒館場景，演員互動與復古道具展示維多利亞時期夜生活。這裡既是休息區也是故事收尾，幽默與小互動讓遊客帶著驚悚又有趣的情緒離開。' },
-                    { title: '16. Photo & Queue Experience（拍照與候場區）', content: '正式進入地牢前的互動區，展示囚籠、木樁、審判符號，演員偶爾與觀眾互動。這個區域提前營造恐怖氣氛，讓遊客從一開始就沉浸於倫敦黑暗歷史的故事。' }
-                ] 
-            },
-            { id: 'british_museum', icon: 'fa-solid fa-building-columns', title: '大英博物館', en: 'British Museum', tag: '世界級博物館', img: 'british_museum.jpg', intro: '成立於 1753 年，收藏了跨越人類 200 萬年歷史的珍貴文物。雖然展品來源具爭議性，但其學術價值無可比擬。', details: [{ title: '羅塞塔石碑', content: '解開古埃及文字之謎的鑰匙，館內人氣最高的鎮館之寶。' }, { title: '帕德嫩神廟石雕', content: '來自希臘雅典衛城的宏偉大理石雕塑，展現了古希臘藝術的巔峰。' }, { title: '埃及館', content: '擁有除開羅以外最豐富的木乃伊收藏，以及巨大的拉美西斯二世頭像。' }] },
-            { 
-                id: 'lion_king', 
-                icon: 'fa-solid fa-masks-theater', 
-                title: '獅子王音樂劇', 
-                en: 'The Lion King', 
-                tag: '迪士尼經典動畫改編', 
-                img: 'lion_king.jpg', 
-                intro: '<p>故事發生在非洲大草原「榮耀大地（Pride Lands）」。</p><p>獅王 木法沙（Mufasa） 與王后 沙拉碧（Sarabi） 迎來新生王子 辛巴（Simba）。在萬物的見證下，辛巴被祝福成為未來的國王。然而，木法沙的弟弟 刀疤（Scar） 因覬覦王位，暗中策畫陰謀。</p><p>刀疤設計讓辛巴誤以為自己害死父親，木法沙在營救辛巴時遭刀疤推落山谷身亡。辛巴在罪惡感與恐懼中逃離家園。</p><p>流亡途中，辛巴遇見 彭彭（Pumbaa） 與 丁滿（Timon），過上「Hakuna Matata」的無憂生活，漸漸忘記自己的責任。多年後，辛巴長大成人，青梅竹馬 娜拉（Nala） 尋來，希望他回去拯救被刀疤與鬣狗統治、已荒蕪的榮耀大地。</p><p>在巫師 拉飛奇（Rafiki） 與父親亡靈的指引下，辛巴重新認識「生命循環」與「責任」，鼓起勇氣回到故鄉，擊敗刀疤，恢復王位，讓生命重回平衡。</p>', 
-                details: [
-                    { title: '1. Circle of Life〈生命之環〉', content: '非洲大草原迎來黎明，動物們從四面八方湧向榮耀石。巫師拉飛奇將新生的小獅子——<b>辛巴</b>高高舉起，向天地宣告新王子的誕生。這首歌奠定全劇核心概念：<b>萬物依循生命之環而生存，每個生命都有其位置與責任</b>。' },
-                    { title: '2. Grasslands Chant〈草原吟唱〉', content: '音樂延續草原的脈動，展現動物王國的秩序與平衡。這不只是背景，而是在暗示：<b>這個世界的穩定仰賴正確的統治者</b>。' },
-                    { title: '3. The Morning Report〈晨間報告〉', content: '犀鳥沙祖向國王<b>木法沙</b>報告王國近況。辛巴在一旁聽見國王每天必須處理繁瑣政務，開始意識到「當國王並不只是威風」。木法沙藉此教導辛巴：<b>權力伴隨責任，而不是為所欲為</b>。' },
-                    { title: '4. The Lion Sleeps Tonight〈獅子今晚沉睡〉', content: '夜晚降臨，動物們進入休息。這首歌帶來輕鬆、幽默的氛圍，讓觀眾短暫沉浸在和平的草原日常中，也為之後的悲劇形成強烈對比。' },
-                    { title: '5. I Just Can’t Wait to Be King〈我等不及要當王〉', content: '辛巴與青梅竹馬<b>娜娜拉</b>幻想未來：等他當上國王，就可以不聽大人管教、自由做任何事。歌曲充滿色彩與活力，表現辛巴的<b>天真、自大與不成熟</b>，也暗示他尚未理解王位真正的意義。' },
-                    { title: '6. Chow Down〈大快朵頤〉（部分版本刪除）', content: '王國邊緣的荒地中，<b>刀疤</b>與鬣狗密謀。刀疤以「等我當上國王，你們就能吃飽」作為誘惑，煽動鬣狗效忠。這首歌明確揭露：<b>刀疤渴望權力，並願意破壞生命之環來達成目的</b>。' },
-                    { title: '7. They Live in You〈他們活在你心中〉', content: '木法沙帶辛巴仰望星空，告訴他：過去的國王並未消失，而是活在後代心中。他教導辛巴：<b>王者的責任是守護整個生命循環，而不是只顧自己</b>。這段教誨將成為辛巴一生的精神根源。' },
-                    { title: '8. Be Prepared〈準備好〉', content: '刀疤正式向鬣狗宣布政變計畫。他嘲諷木法沙的統治，描繪自己登基後的世界。這首歌讓刀疤的<b>野心、怨恨與操弄人心的能力</b>完全展現。' },
-                    { title: '9. The Stampede〈狂奔〉', content: '刀疤誘騙辛巴進入峽谷，並製造角馬暴走。木法沙奮力救出辛巴，卻在攀上峭壁時被刀疤推下，當場喪命。這是全劇最關鍵的悲劇轉折。' },
-                    { title: '10. Rafiki Mourns〈拉飛奇哀悼〉', content: '暴風雨過後，拉飛奇獨自哀悼木法沙的死亡。草原失去王者，<b>生命之環開始動搖</b>。' },
-                    { title: '第二幕 Act II: 11. Hakuna Matata〈哈庫那瑪塔塔〉', content: '刀疤欺騙辛巴，讓他誤以為父親的死是自己的錯。辛巴逃離家園，在荒漠中遇見丁滿與彭彭。他們教他「Hakuna Matata（無憂無慮）」，辛巴選擇<b>逃避過去、拋棄責任</b>，迅速成長為成獅。' },
-                    { title: '12. One by One〈一個接一個〉', content: '在刀疤統治下，榮耀國荒蕪、獵物消失。娜娜拉帶領母獅們反抗鬣狗暴政，象徵即使在絕望中，仍有人選擇站出來對抗不義。' },
-                    { title: '13. The Madness of King Scar〈刀疤的瘋狂統治〉', content: '刀疤的統治導致生態崩潰。他沉溺權力、推卸責任，王國逐漸走向毀滅。這首歌對比木法沙的賢明，凸顯<b>錯誤統治者會破壞整個生命之環</b>。' },
-                    { title: '14. Shadowland〈影之國〉', content: '娜娜拉獨唱，描述她在黑暗國度中的恐懼與痛苦。最終，她決定離開家園，冒險尋找希望。這首歌表現她的<b>勇氣、成長與對王國的忠誠</b>。' },
-                    { title: '15. Can You Feel the Love Tonight〈今夜你是否感受到愛〉', content: '娜娜拉在荒原中與辛巴重逢。愛情重新喚醒辛巴內心的責任感，但他仍害怕面對過去的罪疚與真相。' },
-                    { title: '16. He Lives in You（Reprise）〈他活在你心中－重唱〉', content: '拉飛奇引導辛巴直面父親的靈魂。木法沙的聲音告訴他：<b>「你忘了你是誰。」</b>辛巴終於明白，逃避只會讓錯誤延續。' },
-                    { title: '17. Simba Confronts Scar〈辛巴對峙刀疤〉', content: '辛巴回到榮耀國，與刀疤正面衝突。在眾人面前，刀疤被逼承認真正的兇手是自己。鬣狗反噬刀疤，暴政終結。' },
-                    { title: '18. King of Pride Rock / Circle of Life（Reprise）', content: '辛巴登上榮耀石，成為真正的國王。雨水降臨，大地復甦，生命之環重新運轉。最後，拉飛奇再次舉起新的幼獅，故事回到最初的起點，象徵<b>責任、生命與希望的延續</b>。' }
-                ] 
-            },
-            { id: 'nhm', icon: 'fa-solid fa-bone', title: '自然史博物館', en: 'Natural History Museum', tag: '科學殿堂', img: 'nhm.jpg', intro: '被譽為「自然的大教堂」，維多利亞式的建築本身就是藝術品，外牆裝飾著精緻的動物浮雕。', details: [{ title: 'Hope 藍鯨', content: '懸掛在欣采大廳 (Hintze Hall) 空中的巨大藍鯨骨架，取代了以前的恐龍 Dippy，象徵對海洋的守護。' }, { title: '地球廳', content: '入口處有個穿越巨大金屬球體的紅色手扶梯，充滿科幻感，通往展示火山與地震的區域。' }] },
-            { id: 'va', icon: 'fa-solid fa-palette', title: 'V&A 博物館', en: 'Victoria and Albert Museum', tag: '藝術與設計', img: 'va.jpg', intro: '全球最大的裝飾藝術與設計博物館，收藏了從古至今的時尚、珠寶、家具與雕塑。', details: [{ title: '必訪咖啡廳', content: '博物館內的 Gamble Room 是世界上最早的博物館餐廳，擁有華麗的彩繪玻璃與陶瓷裝飾，極致奢華。' }, { title: '珠寶長廊', content: '展示了超過 3000 件珠寶，包括拿破崙送給約瑟芬皇后的鑽石王冠。' }] },
-            { id: 'national_gallery', icon: 'fa-solid fa-image', title: '國家美術館', en: 'The National Gallery', tag: '繪畫殿堂', img: 'national_gallery.jpg', intro: '收藏了 13 世紀至 1900 年間的西歐繪畫，包括達文西、梵谷、莫內等大師真跡。', details: [{ title: '必看名畫', content: '<ul><li>梵谷《向日葵》</li><li>達文西《岩間聖母》</li><li>范艾克《阿爾諾芬尼夫婦像》</li><li>泰納《戰艦提梅梅爾號》</li></ul>' }] },
-            { 
-                id: 'les_mis', 
-                icon: 'fa-solid fa-flag', 
-                title: '悲慘世界', 
-                en: 'Les Misérables', 
-                tag: '史詩音樂劇', 
-                img: 'les_mis.jpg', 
-                intro: '<p>故事改編自雨果（Victor Hugo）的小說，背景為 19 世紀法國，圍繞「法律、良心、救贖與革命」。</p><p>主角尚萬強（Jean Valjean）因偷麵包救家人，被判苦役十九年。出獄後，他因主教的仁慈而決心改過自新，改名換姓，成為成功的工廠主與市長。然而，一生執著於法律正義的警察 賈維（Javert） 始終追捕他。</p><p>尚萬強收養被剝削的工人 芳婷（Fantine）之女珂賽特（Cosette），撫養她長大。多年後，珂賽特愛上青年革命者馬利尤斯（Marius）。</p><p>巴黎爆發學生革命，馬利尤斯參與街壘戰。尚萬強為救愛人之子，深入戰火，並在關鍵時刻饒恕賈維。賈維無法面對法律與良心的衝突，選擇自盡。</p><p>革命失敗，馬利尤斯倖存並與珂賽特結婚。尚萬強在平靜中辭世，完成一生的救贖。</p>', 
-                details: [
-                    { title: '1. Prologue（序曲）', content: '1815 年，法國。尚萬強因偷麵包餵養姊姊的孩子而被判刑，最終服刑十九年。苦役船上，囚犯被編號、去姓名，象徵人被制度徹底物化。沙威作為獄警登場，他對囚犯毫無同情，認定「犯罪的人永遠是罪犯」，這個信念將貫穿他的一生。' },
-                    { title: '2. Valjean’s Soliloquy / What Have I Done?', content: '尚萬強出獄後獲得假釋，但身分證明讓所有人拒他於門外。只有主教收留他，卻反遭偷竊。當尚萬強被抓回時，主教卻謊稱銀器是送的，還多給他銀燭台。這份毫無條件的仁慈動搖了尚萬強的世界觀——他第一次被當作「人」對待。在激烈的內心掙扎後，他選擇撕毀假釋證明，決定用餘生證明自己值得被寬恕。' },
-                    { title: '3. At the End of the Day', content: '數年後，尚萬強化名成為工廠老闆兼市長。舞台轉為群像：工人、婦女、街頭小販、勞動者唱出日復一日的疲憊。這首歌讓觀眾明白，即使有善良的市長，社會本身仍然在碾壓底層。' },
-                    { title: '4. I Dreamed a Dream', content: '芳汀年輕時愛上一名男子並生下孩子，卻被拋棄，只能將女兒珂賽特寄養在德納第家。如今，她在工廠被揭發未婚生子而遭解雇，生活全面崩潰。這首歌是她對「曾經相信愛與未來」的哀悼，揭示理想如何被現實一寸寸撕碎。' },
-                    { title: '5. Lovely Ladies', content: '失去收入的芳汀一步步被逼賣掉頭髮、牙齒，最後淪為妓女。音樂輕佻，內容卻極端殘酷，刻意製造不適感，諷刺社會對女性的消費與踐踏。' },
-                    { title: '6. Fantine’s Arrest', content: '芳汀被顧客欺辱後反抗，沙威依法將她逮捕。尚萬強出面制止，命沙威放人。這一刻，沙威心中第一次對市長產生懷疑——他不該同情罪犯。' },
-                    { title: '7. Runaway Cart', content: '一輛馬車失控壓住工人，尚萬強在眾目睽睽下徒手抬起車子救人。這不可能的力量讓沙威幾乎確信：眼前的人就是當年的苦役犯尚萬強。' },
-                    { title: '8. Who Am I?', content: '尚萬強得知一名無辜者即將因被誤認成他而受審。若沉默，他能保有權力與地位；若坦白，將失去一切。他選擇在法庭上公開身分，完成從「守法的好市長」到「真正正直之人」的轉變。' },
-                    { title: '9. Fantine’s Death', content: '芳汀病入膏肓，在幻覺中看見未來幸福的珂賽特。尚萬強在她臨終前承諾會找到女兒。芳汀一生的苦難沒有逆轉，只有被理解。' },
-                    { title: '10. The Confrontation', content: '尚萬強與沙威直接對峙。沙威誓言終生追捕他，因為在他的世界裡，「法律一旦破壞，秩序就不存在」。' },
-                    { title: '11. Castle on a Cloud', content: '在德納第家受虐的珂賽特幻想一個沒有痛苦的地方。這首歌象徵孩子如何用想像力自救。' },
-                    { title: '12. Master of the House', content: '德納第夫婦登場，貪婪、狡猾、毫無羞愧。他們代表另一種「活得很好」的方式——靠剝削他人。' },
-                    { title: '13. The Bargain / Waltz of Treachery', content: '尚萬強付錢帶走珂賽特。德納第夫婦不斷加價，將孩子當商品。珂賽特的人生正式被改寫。' },
-                    { title: '14. Look Down', content: '多年後，革命前夕的巴黎。窮人、學生、街童齊唱被壓迫的憤怒。社會不滿已接近臨界點。' },
-                    { title: '15. Robbery / Javert’s Intervention', content: '德納第企圖搶劫尚萬強，沙威出現。命運再次將追逐者與被追逐者拉回同一條線上。' },
-                    { title: '16. Stars', content: '沙威獨自仰望星空，將法律視為神聖秩序。他不是殘忍，而是無法想像世界有灰色地帶。' },
-                    { title: '第二幕 Act II: 17. Eponine’s Errand', content: '德納第的女兒愛潘妮愛上馬呂斯，卻知道他愛的是珂賽特。她仍選擇幫助他，只求靠近。' },
-                    { title: '18. ABC Café / Red and Black', content: '學生革命者策畫起義，理想與死亡交織。馬呂斯被革命吸引，卻因愛情遲疑。' },
-                    { title: '19. Do You Hear the People Sing?', content: '人民之歌響起，革命理想達到高峰。但觀眾已隱約知道，歷史不會站在他們這邊。' },
-                    { title: '20. In My Life', content: '珂賽特第一次真正戀愛，卻感到不安。她的幸福建立在父親的隱瞞之上。' },
-                    { title: '21. A Heart Full of Love', content: '三人同場：戀人沉浸幸福、愛潘妮默默心碎。同一首歌，三種命運。' },
-                    { title: '22. One Day More', content: '革命前夜。所有角色的情感線交會，期待、恐懼、復仇、希望同時爆發。全劇結構與情緒的最高點。' },
-                    { title: '23. On My Own', content: '愛潘妮清楚知道這份愛永遠得不到回應。她不是被拒絕，而是從未被看見。' },
-                    { title: '24. Building the Barricade', content: '街壘築起，理想成為現實。年輕人相信自己能改變世界。' },
-                    { title: '25. Javert’s Arrival', content: '沙威混入革命者，被識破後仍毫不懼怕。他堅信「自己是對的」。' },
-                    { title: '26. Little People', content: '加夫羅什短暫嘲諷權威，象徵底層的反抗。' },
-                    { title: '27. A Little Fall of Rain', content: '愛潘妮中彈，死在馬呂斯懷中。她人生第一次被溫柔地愛著，卻是在最後一刻。' },
-                    { title: '28. Night of Anguish', content: '夜深，革命者等不到支援。理想開始崩解。' },
-                    { title: '29. The First Attack', content: '政府軍進攻，死亡變得真實。' },
-                    { title: '30. Drink With Me', content: '革命者在死亡前互相陪伴。他們不再談理想，只談友情。' },
-                    { title: '31. Bring Him Home', content: '尚萬強祈禱馬呂斯能活下來。這不是革命之歌，而是父愛與慈悲。' },
-                    { title: '32. Dawn of Anguish', content: '天亮，希望已死。' },
-                    { title: '33. The Second Attack / Death of Gavroche', content: '加夫羅什倒下，象徵革命的純真犧牲。' },
-                    { title: '34. The Final Battle', content: '街壘失守，革命徹底失敗。' },
-                    { title: '35. The Sewers / Dog Eats Dog', content: '尚萬強救馬呂斯穿越下水道。德納第在屍體間掠奪，證明人性未曾統一向善。' },
-                    { title: '36. Javert’s Suicide', content: '沙威因被尚萬強放走而信念崩潰。他無法接受「罪犯能選擇善」。' },
-                    { title: '37. Turning', content: '女人們悼念死者。革命結束，生活仍要繼續。' },
-                    { title: '38. Empty Chairs at Empty Tables', content: '馬呂斯活了下來，卻失去一切朋友。倖存本身成為一種痛苦。' },
-                    { title: '39. Every Day', content: '平凡的幸福，是用無數犧牲換來的。' },
-                    { title: '40. Valjean’s Confession', content: '尚萬強坦白過去，放下秘密與責任。' },
-                    { title: '41. Wedding Chorale / Beggars at the Feast', content: '婚禮喜悅與社會荒謬並存。世界沒有因革命而變好，但仍有人獲得幸福。' },
-                    { title: '42. Epilogue / Finale', content: '尚萬強在芳汀與愛潘妮的幻影中離世。全體合唱：即使世界充滿苦難，人仍能選擇成為光。' }
-                ] 
-            },
-            { id: 'st_pauls', icon: 'fa-solid fa-church', title: '聖保羅大教堂', en: 'St Paul\'s Cathedral', tag: '巴洛克地標', img: 'st_pauls.jpg', intro: '雷恩爵士設計的巴洛克傑作，其巨大的圓頂主宰了倫敦天際線三百年。', details: [{ title: '登頂體驗', content: '挑戰 528 階樓梯到達金迴廊 (Golden Gallery)，可俯瞰倫敦絕美全景。中途的耳語廊 (Whispering Gallery) 擁有神奇的傳聲效果。' }] }
+            { id:1, title:'倫敦塔', img:'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=800', content:'英國歷史最悠久的堡壘，保存著珍貴的皇冠珠寶。' },
+            { id:2, title:'倫敦塔橋', img:'https://images.unsplash.com/photo-1543733351-11bf5a74b273?auto=format&fit=crop&w=800', content:'壯觀的維多利亞風格開合橋，是倫敦的地標。' },
+            { id:3, title:'大英博物館', img:'https://images.unsplash.com/photo-1518976024611-28bf4b48222e?auto=format&fit=crop&w=800', content:'世界三大博物館之一，必看羅塞塔石碑與木乃伊。' },
+            { id:4, title:'西敏寺', img:'https://images.unsplash.com/photo-1543733351-11bf5a74b273?auto=format&fit=crop&w=800', content:'歷代君主加冕之地，埋葬著無數文學與科學大師。' },
+            { id:5, title:'波羅市場', img:'https://images.unsplash.com/photo-1533900298318-6b8da08a523e?auto=format&fit=crop&w=800', content:'倫敦最古老的美食市場，推薦生蠔與甜甜圈。' }
         ];
 
-        // --- Itinerary Data (Updated with Transport & Corrections) ---
-        const itineraryData = [
-            { 
-                date: "2/14", day: "週六", fullDate: "2026-02-14",
-                events: [
-                    {time:"06:00", title:"桃園機場 T1", type:"flight", note:"機場Check-in"},
-                    {time:"16:55", title:"Heathrow T3", type:"flight", note:"抵達英國", 
-                     transport: {mode: "伊莉莎白線", text: "Heathrow T2/3 → Bond St", detail: "約 35 分鐘，直達，刷信用卡進站"}},
-                    {time:"", title:"M&S Food Bond St", type:"shop", note:"超市採買", 
-                     transport: {mode: "步行", text: "前往 395 Oxford St", detail: "約 250 公尺，3 分鐘"}},
-                    {time:"", title:"395 Oxford St", type:"stay", note:"住宿點", 
-                     transport: {mode: "步行", text: "前往 Burger & Lobster", detail: "約 150 公尺，2 分鐘"}},
-                    {time:"21:00", title:"Burger & Lobster", type:"food", note:"Bond St 分店 (已預訂)"}
-                ]
-            },
-            { 
-                date: "2/15", day: "週日", fullDate: "2026-02-15",
-                events: [
-                    {time:"08:30", title:"倫敦塔", type:"sight", note:"KLOOK預訂", mapQuery: "Tower of London",
-                     transport: {mode: "地鐵", text: "Bond St → Tower Hill", detail: "Jubilee線至Westminster轉Circle/District線，約 30 分鐘"}},
-                    {time:"11:30", title:"波羅市場", type:"food", note:"美食市集", mapQuery: "Borough Market",
-                     transport: {mode: "步行", text: "跨越倫敦塔橋", detail: "約 1.2 公里，20 分鐘 (風景優美)"}},
-                    {time:"14:30", title:"Skuna Boats", type:"fun", note:"烤肉船", mapQuery: "Skuna Boats Canary Wharf",
-                     transport: {mode: "地鐵", text: "London Bridge → Canary Wharf", detail: "Jubilee線，約 10 分鐘，出站步行 8 分鐘"}},
-                    {time:"18:30", title:"Blacklock", type:"food", note:"Canary Wharf 分店", mapQuery: "Blacklock Canary Wharf"}
-                ]
-            },
-            { 
-                date: "2/16", day: "週一", fullDate: "2026-02-16",
-                events: [
-                    {time:"09:00", title:"西敏寺", type:"sight", note:"已預訂", mapQuery: "Westminster Abbey",
-                     transport: {mode: "地鐵", text: "Bond St → Westminster", detail: "Jubilee線直達，約 6 分鐘"}},
-                    {time:"12:30", title:"Pizza Pilgrims", type:"food", note:"Waterloo 分店", mapQuery: "Pizza Pilgrims Waterloo",
-                     transport: {mode: "步行", text: "跨越西敏橋", detail: "約 1.1 公里，15 分鐘 (經大笨鐘/倫敦眼)"}},
-                    {time:"14:00", title:"倫敦地牢", type:"fun", note:"體驗", mapQuery: "The London Dungeon",
-                     transport: {mode: "步行", text: "就在旁邊", detail: "約 200 公尺，3 分鐘"}},
-                    {time:"晚餐", title:"Hoppers", type:"food", note:"Marylebone", mapQuery: "Hoppers Marylebone",
-                     transport: {mode: "地鐵", text: "Waterloo → Baker St", detail: "Bakerloo線，約 14 分鐘，出站步行 8 分鐘"}}
-                ]
-            },
-            { 
-                date: "2/17", day: "週二", fullDate: "2026-02-17",
-                events: [
-                    {time:"08:30", title:"Eggslut Fitzrovia", type:"food", note:"早餐", mapQuery: "Eggslut Fitzrovia",
-                     transport: {mode: "步行", text: "從住宿出發", detail: "約 1.1 公里，14 分鐘"}},
-                    {time:"09:10", title:"大英博物館", type:"sight", note:"中文導覽", mapQuery: "The British Museum",
-                     transport: {mode: "步行", text: "前往博物館", detail: "約 600 公尺，8 分鐘"}},
-                    {time:"13:00", title:"The Ninth", type:"food", note:"米其林一星", mapQuery: "The Ninth London",
-                     transport: {mode: "步行", text: "前往餐廳", detail: "約 900 公尺，12 分鐘"}},
-                    {time:"", title:"柯芬園市集", type:"walk", note:"逛街", mapQuery: "Covent Garden Market",
-                     transport: {mode: "步行", text: "前往柯芬園", detail: "約 10 分鐘"}},
-                    {time:"晚餐", title:"Barrafina", type:"food", note:"Adelaide St", mapQuery: "Barrafina Adelaide Street",
-                     transport: {mode: "步行", text: "前往餐廳", detail: "約 5 分鐘"}},
-                    {time:"19:30", title:"獅子王音樂劇", type:"show", note:"Lyceum Theatre", mapQuery: "Lyceum Theatre London",
-                     transport: {mode: "步行", text: "前往劇院", detail: "約 400 公尺，5 分鐘"}}
-                ]
-            },
-            { 
-                date: "2/18", day: "週三", fullDate: "2026-02-18",
-                events: [
-                    {time:"08:30", title:"Philippe Conticini", type:"food", note:"巨型可頌", mapQuery: "Philippe Conticini South Kensington",
-                     transport: {mode: "地鐵", text: "Bond St → South Kensington", detail: "Jubilee至Green Park轉Piccadilly線，約 20 分鐘"}},
-                    {time:"09:50", title:"自然史博物館", type:"sight", note:"已預訂", mapQuery: "Natural History Museum",
-                     transport: {mode: "步行", text: "前往博物館", detail: "約 300 公尺，4 分鐘"}},
-                    {time:"", title:"V&A 博物館", type:"walk", note:"逛展", mapQuery: "Victoria and Albert Museum",
-                     transport: {mode: "步行", text: "就在隔壁", detail: "約 100 公尺，1 分鐘"}},
-                    {time:"17:00", title:"Dishoom", type:"food", note:"Kensington", mapQuery: "Dishoom Kensington",
-                     transport: {mode: "步行", text: "前往餐廳", detail: "約 1.2 公里，15 分鐘 (或搭公車 9/23 號)"}}
-                ]
-            },
-            { 
-                date: "2/19", day: "週四", fullDate: "2026-02-19",
-                events: [
-                    {time:"08:30", title:"Arôme Bakery", type:"food", note:"蜂蜜吐司 (Duke St)", mapQuery: "Arôme Bakery - The Duke Street Bakery",
-                     transport: {mode: "步行", text: "從住宿出發", detail: "約 350 公尺，5 分鐘"}},
-                    {time:"09:30", title:"國家美術館", type:"sight", note:"已預訂", mapQuery: "The National Gallery",
-                     transport: {mode: "公車/步行", text: "前往特拉法加廣場", detail: "139/159號公車約15分，步行約20分"}},
-                    {time:"12:00", title:"ALTA Kingly Court", type:"food", note:"午餐", mapQuery: "ALTA Kingly Court",
-                     transport: {mode: "步行", text: "穿越 Soho 區", detail: "約 800 公尺，12 分鐘"}},
-                    {time:"", title:"Liberty London", type:"shop", note:"百貨", mapQuery: "Liberty London",
-                     transport: {mode: "步行", text: "就在旁邊", detail: "約 100 公尺，2 分鐘"}},
-                    {time:"15:00", title:"啤酒自行車", type:"fun", note:"Wee Toast Tours", mapQuery: "Wee Toast Tours London",
-                     transport: {mode: "步行", text: "前往集合點", detail: "視集合點而定，通常在附近"}},
-                    {time:"17:00", title:"Bancone", type:"food", note:"Golden Sq", mapQuery: "Bancone Golden Square",
-                     transport: {mode: "步行", text: "前往餐廳", detail: "約 400 公尺，5 分鐘"}},
-                    {time:"19:30", title:"悲慘世界", type:"show", note:"Sondheim Theatre", mapQuery: "Sondheim Theatre",
-                     transport: {mode: "步行", text: "前往劇院", detail: "約 300 公尺，4 分鐘"}}
-                ]
-            },
-            { 
-                date: "2/20", day: "週五", fullDate: "2026-02-20",
-                events: [
-                    {time:"08:00", title:"聖保羅大教堂", type:"sight", note:"已預訂", mapQuery: "St. Paul's Cathedral",
-                     transport: {mode: "地鐵", text: "Bond St → St Paul's", detail: "Central 線直達，約 10 分鐘"}},
-                    {time:"12:00", title:"Tortilla Leadenhall", type:"food", note:"午餐", mapQuery: "Tortilla Leadenhall Market",
-                     transport: {mode: "步行", text: "前往利德賀市場", detail: "約 900 公尺，12 分鐘"}},
-                    {time:"13:00", title:"War of the Worlds", type:"fun", note:"體驗", mapQuery: "Jeff Wayne's The War of The Worlds: The Immersive Experience",
-                     transport: {mode: "步行", text: "前往體驗館", detail: "約 250 公尺，3 分鐘"}},
-                    {time:"16:00", title:"Engel Bar", type:"food", note:"下午茶", mapQuery: "Engel Bar London",
-                     transport: {mode: "步行", text: "前往酒吧", detail: "約 200 公尺，3 分鐘"}},
-                    {time:"19:30", title:"Sky Garden", type:"sight", note:"夜景", mapQuery: "Sky Garden London",
-                     transport: {mode: "步行", text: "前往空中花園", detail: "約 400 公尺，5 分鐘"}}
-                ]
-            },
-            { 
-                date: "2/21", day: "週六", fullDate: "2026-02-21",
-                events: [
-                    {time:"07:00", title:"伊莉莎白線車站", type:"walk", note:"前往Watford", mapQuery: "Bond Street Station",
-                     transport: {mode: "地鐵+火車", text: "Bond St → Euston → Watford Jnc", detail: "Victoria線至Euston(5分)，轉火車至Watford(20分)"}},
-                    {time:"13:00", title:"哈利波特影城", type:"fun", note:"Warner Bros.", mapQuery: "Warner Bros. Studio Tour London",
-                     transport: {mode: "火車", text: "Watford Jnc → Euston", detail: "搭接駁車回車站再轉火車，約 40 分鐘"}},
-                    {time:"22:00", title:"Evans & Peel", type:"fun", note:"偵探酒吧", mapQuery: "Evans & Peel Detective Agency",
-                     transport: {mode: "地鐵", text: "Euston → Earl's Court", detail: "Victoria至Green Park轉Piccadilly，約 30 分鐘"}}
-                ]
-            },
-            { 
-                date: "2/22", day: "週日", fullDate: "2026-02-22",
-                events: [
-                    {time:"", title:"E Pellicci", type:"food", note:"英式早餐", mapQuery: "E Pellicci",
-                     transport: {mode: "地鐵", text: "Bond St → Bethnal Green", detail: "Central 線直達，約 25 分鐘"}},
-                    {time:"", title:"The Hidden City", type:"fun", note:"解謎", mapQuery: "The Hidden City London",
-                     transport: {mode: "步行", text: "解謎步行活動", detail: "區域內移動"}},
-                    {time:"14:30", title:"The Murder Express", type:"fun", note:"午餐劇", mapQuery: "Funicular The Murder Express",
-                     transport: {mode: "步行", text: "前往 Brick Lane", detail: "約 15 分鐘"}},
-                    {time:"PM", title:"紅磚巷市集", type:"walk", note:"Brick Lane", mapQuery: "Brick Lane Market",
-                     transport: {mode: "步行", text: "市集閒逛", detail: "隨意走動"}}
-                ]
-            },
-            { 
-                date: "2/23", day: "週一", fullDate: "2026-02-23",
-                events: [
-                    {time:"09:00", title:"Bounce 行李寄放", type:"stay", note:"Victoria", mapQuery: "Victoria Station",
-                     transport: {mode: "地鐵", text: "Bond St → Victoria", detail: "Jubilee至Green Park轉Victoria線，約 15 分鐘"}},
-                    {time:"10:30", title:"白金漢宮", type:"sight", note:"衛兵交接", mapQuery: "Buckingham Palace",
-                     transport: {mode: "步行", text: "從車站步行", detail: "約 800 公尺，10 分鐘"}},
-                    {time:"17:00", title:"Heathrow T3", type:"flight", note:"返台", mapQuery: "Heathrow Airport Terminal 3",
-                     transport: {mode: "地鐵/快線", text: "Victoria → Paddington → LHR", detail: "District至Paddington轉Elizabeth線，預留 70 分鐘"}},
-                    {time:"18:35", title:"TPE T1", type:"flight", note:"抵達", mapQuery: "Taoyuan International Airport Terminal 1"}
-                ]
-            }
-        ];
+        // 切換分頁
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.replace('text-antique-gold', 'text-gray-500'));
+            event.currentTarget.classList.replace('text-gray-500', 'text-antique-gold');
+        }
 
+        // 天氣 API (使用 Open-Meteo 免費 API)
+        async function fetchWeather() {
+            try {
+                const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=51.5074&longitude=-0.1278&current_weather=true');
+                const data = await res.json();
+                document.getElementById('weather-temp').innerText = `${Math.round(data.current_weather.temperature)}°C`;
+                document.getElementById('weather-desc').innerText = `目前倫敦風速 ${data.current_weather.windspeed} km/h`;
+            } catch (e) { document.getElementById('weather-desc').innerText = '天氣讀取失敗'; }
+        }
+
+        // 清單功能
+        let items = JSON.parse(localStorage.getItem('trip-items') || '["護照", "英鎊現金", "轉接頭"]');
+        function renderItems() {
+            const list = document.getElementById('editable-list');
+            list.innerHTML = items.map((item, i) => `
+                <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-100">
+                    <span class="text-sm font-medium">${item}</span>
+                    <button onclick="removeItem(${i})" class="text-red-400"><i class="fa-solid fa-trash-can"></i></button>
+                </div>
+            `).join('');
+            document.getElementById('list-count').innerText = `${items.length} 項目`;
+            localStorage.setItem('trip-items', JSON.stringify(items));
+        }
+        function addItem() {
+            const input = document.getElementById('new-item-input');
+            if(input.value) { items.push(input.value); input.value = ''; renderItems(); }
+        }
+        function removeItem(i) { items.splice(i, 1); renderItems(); }
+
+        // 導覽渲染
         function renderGuide() {
-            const container = document.getElementById('guide-list');
-            let html = '';
-            guideData.forEach((item, index) => {
-                const numberIcon = `<div class="w-12 h-12 rounded-full bg-royal-navy/10 flex items-center justify-center mr-4 shrink-0 font-cinzel font-bold text-xl text-royal-navy">${index + 1}</div>`;
-                html += `
-                    <div class="bg-white rounded-xl shadow-paper p-4 flex items-center cursor-pointer btn-press border-l-4 border-royal-navy" onclick="openModal('${item.id}')">
-                        ${numberIcon}
-                        <div class="flex-1 min-w-0">
-                            <div class="flex justify-between items-baseline mb-1">
-                                <h3 class="font-bold text-royal-navy text-lg truncate pr-2">${item.title}</h3>
-                                <span class="text-[10px] bg-antique-gold/20 text-royal-navy px-1.5 py-0.5 rounded font-bold shrink-0">${item.tag}</span>
-                            </div>
-                            <p class="text-xs text-gray-500 font-serif italic truncate">${item.en}</p>
-                        </div>
-                        <i class="fa-solid fa-chevron-right text-gray-300 ml-3"></i>
-                    </div>`;
-            });
-            container.innerHTML = html;
+            document.getElementById('guide-list').innerHTML = guideData.map(d => `
+                <div class="bg-white rounded-xl shadow-md overflow-hidden" onclick="openModal(${d.id})">
+                    <div class="h-40 bg-cover bg-center" style="background-image:url('${d.img}')"></div>
+                    <div class="p-3 font-bold text-sm">${d.title}</div>
+                </div>
+            `).join('');
         }
 
         function openModal(id) {
-            const item = guideData.find(d => d.id === id);
-            if (!item) return;
-            document.getElementById('modal-tag').innerText = item.tag;
-            document.getElementById('modal-title').innerText = item.title;
-            document.getElementById('modal-en').innerText = item.en;
-            document.getElementById('modal-intro').innerHTML = item.intro;
-            
-            const iconContainer = document.getElementById('modal-icon-container');
-            iconContainer.innerHTML = `<i class="${item.icon} text-8xl text-white/10"></i>`;
-            const header = document.getElementById('modal-header-bg');
-            if(item.img) {
-                header.style.backgroundImage = `url('${item.img}')`;
-                header.classList.remove('bg-royal-navy');
-            } else {
-                header.style.backgroundImage = 'none';
-                header.classList.add('bg-royal-navy');
-            }
-
-            let detailsHtml = '';
-            item.details.forEach((detail, index) => {
-                detailsHtml += `
-                    <div class="rich-text ${index !== item.details.length - 1 ? 'border-b border-gray-200 pb-6' : ''}">
-                        <h4 class="font-bold text-lg text-royal-navy mb-3 flex items-center font-serif">
-                            <span class="inline-block w-2 h-2 bg-antique-gold rounded-full mr-3"></span>${detail.title}
-                        </h4>
-                        <div class="text-sm text-gray-700 pl-5 font-sans leading-relaxed">${detail.content}</div>
-                    </div>`;
-            });
-            document.getElementById('modal-sections').innerHTML = detailsHtml;
-
-            const modal = document.getElementById('detail-modal');
-            modal.classList.remove('hidden-modal');
-            modal.classList.add('visible-modal');
-            document.body.style.overflow = 'hidden';
+            const d = guideData.find(x => x.id === id);
+            document.getElementById('modal-title').innerText = d.title;
+            document.getElementById('modal-content').innerText = d.content;
+            document.getElementById('modal-img').style.backgroundImage = `url('${d.img}')`;
+            document.getElementById('detail-modal').classList.replace('hidden', 'visible');
         }
+        function closeModal() { document.getElementById('detail-modal').classList.replace('visible', 'hidden'); }
 
-        function closeModal() {
-            const modal = document.getElementById('detail-modal');
-            modal.classList.remove('visible-modal');
-            modal.classList.add('hidden-modal');
-            document.body.style.overflow = '';
-        }
-
-        /* 彩蛋控制函數 */
-        function triggerEasterEgg() {
-            const modal = document.getElementById('easter-egg-modal');
-            modal.classList.remove('hidden-modal');
-            modal.classList.add('visible-modal');
-        }
-
-        function closeEasterEgg() {
-            const modal = document.getElementById('easter-egg-modal');
-            modal.classList.remove('visible-modal');
-            modal.classList.add('hidden-modal');
-        }
-
-        let selectedDayIndex = 0;
-
-        function renderItinerary() {
-            // 1. Render Sidebar Dates
-            const sidebar = document.getElementById('date-sidebar');
-            let sidebarHtml = '';
-            
-            itineraryData.forEach((day, index) => {
-                const dateParts = day.date.split('/');
-                sidebarHtml += `
-                    <div onclick="selectDay(${index})" class="date-btn w-full py-4 border-b border-gray-100 flex flex-col items-center justify-center cursor-pointer ${index === selectedDayIndex ? 'active' : 'text-gray-400'}">
-                        <span class="font-cinzel text-xl font-bold leading-none mb-1">${dateParts[1]}</span>
-                        <span class="text-[10px] font-bold uppercase day-label">${day.day}</span>
-                    </div>
-                `;
-            });
-            sidebar.innerHTML = sidebarHtml;
-
-            // 2. Render Content for Selected Day
-            const day = itineraryData[selectedDayIndex];
-            const contentContainer = document.getElementById('current-day-content');
-            
-            // --- 航班資訊動態判斷 (Dynamic Flight Widget) ---
-            let flightWidget = '';
-            if (day.date === '2/14') {
-                // 去程：台北 -> 倫敦
-                flightWidget = `
-                    <div class="bg-white rounded-xl shadow-floating p-4 relative overflow-hidden mb-6 animate-in">
-                        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-british-red to-royal-navy"></div>
-                        <div class="flex justify-between items-center text-center mt-2">
-                            <div><div class="text-2xl font-cinzel font-bold text-royal-navy">TPE</div><div class="text-[10px] text-gray-500">08:40</div></div>
-                            <div class="flex-1 px-2 flex flex-col items-center">
-                                <i class="fa-solid fa-plane text-british-red text-sm mb-1"></i>
-                                <div class="w-full h-px bg-gray-300"></div>
-                                <span class="text-[10px] font-bold text-royal-navy mt-0.5">CI81</span>
-                                <span class="text-[9px] text-gray-400">16h 15m</span>
-                            </div>
-                            <div><div class="text-2xl font-cinzel font-bold text-royal-navy">LHR</div><div class="text-[10px] text-gray-500">16:55</div></div>
-                        </div>
-                    </div>`;
-            } else if (day.date === '2/23') {
-                // 回程：倫敦 -> 台北 (圖示和地點對調)
-                flightWidget = `
-                    <div class="bg-white rounded-xl shadow-floating p-4 relative overflow-hidden mb-6 animate-in">
-                        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-royal-navy to-british-red"></div>
-                        <div class="flex justify-between items-center text-center mt-2">
-                            <div><div class="text-2xl font-cinzel font-bold text-royal-navy">LHR</div><div class="text-[10px] text-gray-500">21:15</div></div>
-                            <div class="flex-1 px-2 flex flex-col items-center">
-                                <i class="fa-solid fa-plane text-royal-navy text-sm mb-1 transform rotate-180"></i>
-                                <div class="w-full h-px bg-gray-300"></div>
-                                <span class="text-[10px] font-bold text-royal-navy mt-0.5">CI82</span>
-                                <span class="text-[9px] text-gray-400">13h 20m (+1)</span>
-                            </div>
-                            <div><div class="text-2xl font-cinzel font-bold text-royal-navy">TPE</div><div class="text-[10px] text-gray-500">18:35</div></div>
-                        </div>
-                    </div>`;
-            }
-
-            let evs = '';
-            day.events.forEach(e => {
-                let c = 'text-gray-400', i = 'fa-circle', b = 'border-gray-300';
-                if(e.type==='flight'){c='text-british-red';i='fa-plane';b='border-british-red';}
-                if(e.type==='food'){c='text-antique-gold';i='fa-utensils';b='border-antique-gold';}
-                if(e.type==='show'){c='text-purple-700';i='fa-ticket';b='border-purple-700';}
-                if(e.type==='sight'){c='text-royal-navy';i='fa-camera';b='border-royal-navy';}
-                if(e.type==='fun'){c='text-pink-600';i='fa-masks-theater';b='border-pink-600';}
-                if(e.type==='shop'){c='text-green-600';i='fa-bag-shopping';b='border-green-600';}
-
-                let transportHtml = '';
-                if (e.transport) {
-                    transportHtml = `
-                        <div class="transport-line text-xs text-gray-500 mb-4 ml-6">
-                            <div class="flex items-center gap-2 bg-gray-100 rounded px-2 py-1 inline-block">
-                                <i class="fa-solid fa-shoe-prints text-gray-400"></i>
-                                <span class="font-bold text-royal-navy">${e.transport.mode}</span>
-                                <span>${e.transport.text}</span>
-                            </div>
-                            <div class="mt-1 pl-1 opacity-70"><i class="fa-solid fa-clock text-[10px] mr-1"></i>${e.transport.detail}</div>
-                        </div>`;
-                }
-
-                const mapQuery = e.mapQuery ? e.mapQuery : (e.title + " London");
-                const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`;
-
-                evs += `
-                    <div class="ml-2 relative group">
-                        <div class="absolute -left-[13px] top-3 w-3 h-3 bg-parchment border-2 border-royal-navy rounded-full z-10 flex items-center justify-center">
-                            <div class="w-1 h-1 bg-royal-navy rounded-full"></div>
-                        </div>
-                        <div class="bg-white p-3 rounded shadow-paper border-l-4 ${b} flex justify-between items-start mb-4 cursor-pointer btn-press" onclick="window.open('${mapUrl}', '_blank')">
-                            <div>
-                                <div class="flex items-center gap-2 mb-1">
-                                    <span class="font-bold text-royal-navy text-sm font-serif">${e.title}</span>
-                                    <i class="${i} ${c} text-xs opacity-70"></i>
-                                </div>
-                                <div class="text-xs text-gray-500 font-mono">${e.time} ${e.note?'• '+e.note:''}</div>
-                            </div>
-                            <i class="fa-solid fa-chevron-right text-gray-200 text-xs mt-2"></i>
-                        </div>
-                    </div>
-                    ${transportHtml}`;
-            });
-
-            contentContainer.innerHTML = `
-                ${flightWidget}
-                <div class="relative pl-3 border-l border-gray-300 ml-2">
-                    <div class="mb-4">
-                        <h2 class="text-2xl font-serif font-bold text-royal-navy">${day.date} <span class="text-sm font-sans text-antique-gold ml-2">${day.day}</span></h2>
-                    </div>
-                    ${evs}
-                </div>
-            `;
-        }
-
-        function selectDay(index) {
-            selectedDayIndex = index;
-            renderItinerary();
-            // Scroll right content to top
-            document.getElementById('day-details-container').scrollTop = 0;
-        }
-
-        // Checklist Logic
-        const defaultChecklistItems = [
-            "信用卡(VISA/MASTER CARD)-可當交通卡用",
-            "行動電源 (須標示Wh，100Wh以下免申報，100-160W須向航空公司申請許可。且每個電源須單獨放入透明夾鏈袋，並用決用膠帶封住USB孔或電極)",
-            "泳衣", "毛巾", "牙刷", "保暖衣物 (0-9°C)",
-            "240V 轉接插頭", "充電器",
-            "手機掛繩", "護照", "雨具/防水風衣"
-        ];
-        function loadChecklist() {
-            let items = JSON.parse(localStorage.getItem('uk_trip_list_v5'));
-            if (!items) {
-                items = defaultChecklistItems.map(txt => ({ text: txt, done: false }));
-                localStorage.setItem('uk_trip_list_v5', JSON.stringify(items));
-            }
-            renderChecklistUI(items);
-        }
-
-        function renderChecklistUI(items) {
-            const container = document.getElementById('checklist-container');
-            container.innerHTML = '';
-            let doneCount = 0;
-            items.forEach((item, index) => {
-                if (item.done) doneCount++;
-                const div = document.createElement('div');
-                div.className = `flex items-center p-3 border-b border-gray-100 last:border-0 justify-between ${item.done ? 'bg-gray-50' : ''}`;
-                div.innerHTML = `
-                    <div class="flex items-center cursor-pointer flex-1" onclick="toggleItem(${index})">
-                        <div class="w-6 h-6 border-2 border-royal-navy rounded flex items-center justify-center shrink-0 ${item.done ? 'bg-royal-navy' : ''}">
-                            ${item.done ? '<i class="fa-solid fa-check text-white text-xs"></i>' : ''}
-                        </div>
-                        <span class="ml-3 font-medium text-sm ${item.done ? 'line-through text-gray-400' : 'text-royal-navy'}">${item.text}</span>
-                    </div>
-                    <button onclick="deleteItem(${index})" class="ml-2 text-gray-300 hover:text-red-500 px-2 py-1"><i class="fa-solid fa-trash-can"></i></button>`;
-                container.appendChild(div);
-            });
-            document.getElementById('progress-text').innerText = `${doneCount}/${items.length}`;
-        }
-
-        function toggleItem(index) {
-            let items = JSON.parse(localStorage.getItem('uk_trip_list_v5'));
-            items[index].done = !items[index].done;
-            localStorage.setItem('uk_trip_list_v5', JSON.stringify(items));
-            renderChecklistUI(items);
-        }
-
-        function addItem() {
-            const input = document.getElementById('new-item-input');
-            const val = input.value.trim();
-            if (!val) return;
-            let items = JSON.parse(localStorage.getItem('uk_trip_list_v5')) || [];
-            items.push({ text: val, done: false });
-            localStorage.setItem('uk_trip_list_v5', JSON.stringify(items));
-            input.value = '';
-            renderChecklistUI(items);
-        }
-
-        function deleteItem(index) {
-            if (!confirm('刪除？')) return;
-            let items = JSON.parse(localStorage.getItem('uk_trip_list_v5'));
-            items.splice(index, 1);
-            localStorage.setItem('uk_trip_list_v5', JSON.stringify(items));
-            renderChecklistUI(items);
-        }
-
-        function switchTab(tabId) {
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            document.getElementById('nav-' + tabId).classList.add('active');
-            document.querySelectorAll('.tab-content').forEach(el => { el.style.opacity = '0'; setTimeout(() => el.style.display = 'none', 300); });
-            setTimeout(() => { const t = document.getElementById(tabId); t.style.display = 'block'; t.offsetHeight; t.style.opacity = '1'; document.getElementById('main-container').scrollTop = 0; }, 300);
-        }
-
-        function saveRate(){ localStorage.setItem('uk_trip_rate',document.getElementById('exchange-rate').value); }
-        function calculate(){ try{const r=parseFloat(document.getElementById('exchange-rate').value)||41.5; const v=eval(document.getElementById('calc-input').value); document.getElementById('result-twd').innerText="NT$ "+Math.round(v*r).toLocaleString();}catch(e){document.getElementById('result-twd').innerText="錯誤";}}
-
-        function scrollToToday() {
-            const todayStr = new Date().toISOString().split('T')[0]; // "2026-02-14"
-            const index = itineraryData.findIndex(day => day.fullDate === todayStr);
-            if (index !== -1) {
-                selectDay(index);
-                // Also scroll sidebar to make sure the date is visible
-                const sidebar = document.getElementById('date-sidebar');
-                const btn = sidebar.children[index];
-                if (btn) {
-                    btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-            } else {
-                // Default to day 0 if today is not found
-                selectDay(0);
-            }
-        }
-
-        window.onload = function() {
-            setTimeout(() => { const s=document.getElementById('splash-screen'); s.style.opacity='0'; setTimeout(()=>s.remove(),800); }, 1500);
-            renderItinerary();
-            renderGuide();
-            loadChecklist();
-            fetchWeather(); // Call Weather API
-            
-            const r = localStorage.getItem('uk_trip_rate'); if(r)document.getElementById('exchange-rate').value=r;
-            
-            document.getElementById('new-item-input').addEventListener('keypress', function (e) {
-                if (e.key === 'Enter') addItem();
-            });
-
-            setTimeout(scrollToToday, 500);
-        };
+        window.onload = () => { renderItems(); renderGuide(); fetchWeather(); };
     </script>
 </body>
 </html>
